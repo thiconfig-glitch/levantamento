@@ -25,6 +25,26 @@ const todosOsBlocos = [
     "SETE LAGOAS", "TEOFILO OTONI", "UBÁ", "UBERABA", "UBERLANDIA", "VARGINHA", "VENDA NOVA"
 ];
 
+const limitesBlocos = {
+    "BELO HORIZONTE": { "biblia": 95, "somos3": 22, "carater": 14, "arrependimento": 18, "avivamento": 11, "filhoDono": 25, "virgens": 16, "ovelha": 20 },
+    "BETIM": { "biblia": 50, "somos3": 0, "carater": 5, "arrependimento": 0, "avivamento": 0, "filhoDono": 40, "virgens": 0, "ovelha": 1 },
+    "CATEDRAL": { "biblia": 26, "somos3": 55, "carater": 38, "arrependimento": 18, "avivamento": 23, "filhoDono": 8, "virgens": 55, "ovelha": 53 },
+    "CONSELHEIRO LAFAIETE": { "biblia": 11, "somos3": 0, "carater": 0, "arrependimento": 0, "avivamento": 0, "filhoDono": 0, "virgens": 0, "ovelha": 0 },
+    "DIVINOPOLIS": { "biblia": 0, "somos3": 0, "carater": 0, "arrependimento": 0, "avivamento": 0, "filhoDono": 0, "virgens": 0, "ovelha": 0 },
+    "ELDORADO": { "biblia": 19, "somos3": 1, "carater": 0, "arrependimento": 0, "avivamento": 0, "filhoDono": 2, "virgens": 0, "ovelha": 0 },
+    "GOVERNADOR VALADARES": { "biblia": 27, "somos3": 6, "carater": 7, "arrependimento": 7, "avivamento": 6, "filhoDono": 7, "virgens": 6, "ovelha": 6 },
+    "ITABIRA": { "biblia": 15, "somos3": 0, "carater": 0, "arrependimento": 0, "avivamento": 0, "filhoDono": 0, "virgens": 0, "ovelha": 0 },
+    "JUIZ DE FORA": { "biblia": 23, "somos3": 5, "carater": 4, "arrependimento": 4, "avivamento": 3, "filhoDono": 4, "virgens": 7, "ovelha": 5 },
+    "MONTES CLAROS": { "biblia": 43, "somos3": 0, "carater": 0, "arrependimento": 0, "avivamento": 0, "filhoDono": 0, "virgens": 0, "ovelha": 0 },
+    "SETE LAGOAS": { "biblia": 30, "somos3": 2, "carater": 2, "arrependimento": 2, "avivamento": 2, "filhoDono": 4, "virgens": 3, "ovelha": 2 },
+    "TEOFILO OTONI": { "biblia": 36, "somos3": 4, "carater": 4, "arrependimento": 4, "avivamento": 4, "filhoDono": 4, "virgens": 4, "ovelha": 4 },
+    "UBÁ": { "biblia": 15, "somos3": 0, "carater": 0, "arrependimento": 0, "avivamento": 0, "filhoDono": 0, "virgens": 0, "ovelha": 0 },
+    "UBERABA": { "biblia": 7, "somos3": 2, "carater": 7, "arrependimento": 2, "avivamento": 2, "filhoDono": 2, "virgens": 2, "ovelha": 2 },
+    "UBERLANDIA": { "biblia": 144, "somos3": 17, "carater": 24, "arrependimento": 20, "avivamento": 18, "filhoDono": 19, "virgens": 21, "ovelha": 21 },
+    "VARGINHA": { "biblia": 42, "somos3": 40, "carater": 52, "arrependimento": 40, "avivamento": 45, "filhoDono": 41, "virgens": 43, "ovelha": 44 },
+    "VENDA NOVA": { "biblia": 67, "somos3": 46, "carater": 43, "arrependimento": 35, "avivamento": 36, "filhoDono": 44, "virgens": 43, "ovelha": 42 }
+};
+
 let registrosGlobais = [];
 const corpoTabela = document.getElementById('corpo-tabela');
 const seletorFiltro = document.getElementById('filtro-bloco');
@@ -49,6 +69,7 @@ onSnapshot(q, (snapshot) => {
     renderizarTabela(registrosGlobais);
     calcularKPIs(registrosGlobais);
     atualizarBlocosPendentes();
+    renderizarProgresso();
 }, (error) => {
     console.error("Erro ao ler o banco:", error);
     corpoTabela.innerHTML = '<tr><td colspan="6" style="text-align:center; color:red;">Erro de permissão no Firebase ou aguardando conexão...</td></tr>';
@@ -195,3 +216,59 @@ document.getElementById('btn-exportar').addEventListener('click', () => {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 });
+
+function renderizarProgresso() {
+    const container = document.getElementById('corpo-tabela-progresso');
+    container.innerHTML = '';
+
+    const progressoBlocos = todosOsBlocos.map(bloco => {
+        const limites = limitesBlocos[bloco];
+        if (!limites) return null;
+
+        const limiteTotal = Object.values(limites).reduce((a, b) => a + b, 0);
+
+        const registrosDoBloco = registrosGlobais.filter(r => r.bloco === bloco);
+        let designadoTotal = 0;
+        registrosDoBloco.forEach(reg => {
+            designadoTotal += Object.values(reg.livros).reduce((a, b) => a + b, 0);
+        });
+
+        const pendente = limiteTotal - designadoTotal;
+        const porcentagem = limiteTotal === 0 ? 100 : Math.min(100, Math.round((designadoTotal / limiteTotal) * 100));
+
+        return { bloco, limiteTotal, designadoTotal, pendente, porcentagem };
+    }).filter(b => b !== null);
+
+    progressoBlocos.sort((a, b) => a.porcentagem - b.porcentagem);
+
+    let totalGeral = 0;
+    let pendenteGeral = 0;
+
+    progressoBlocos.forEach(pb => {
+        totalGeral += pb.limiteTotal;
+        pendenteGeral += pb.pendente;
+
+        let corStatus = '#28a745';
+        if (pb.porcentagem < 100) corStatus = '#ffc107'; 
+        if (pb.porcentagem === 0) corStatus = '#dc3545';
+
+        container.innerHTML += `
+            <tr>
+                <td style="font-weight: bold; color: #0a162d;">${pb.bloco}</td>
+                <td>${pb.limiteTotal}</td>
+                <td>${pb.designadoTotal}</td>
+                <td style="color: ${pb.pendente > 0 ? '#dc3545' : '#28a745'}; font-weight: bold;">${pb.pendente}</td>
+                <td style="min-width: 150px;">
+                    <div style="background-color: #e9ecef; border-radius: 4px; width: 100%; height: 12px; margin-bottom: 5px; overflow: hidden;">
+                        <div style="background-color: ${corStatus}; width: ${pb.porcentagem}%; height: 100%; border-radius: 4px;"></div>
+                    </div>
+                    <span style="font-size: 0.85em; font-weight: bold; color: ${corStatus};">${pb.porcentagem}% Concluído</span>
+                </td>
+            </tr>
+        `;
+    });
+
+    const boxPendentes = document.getElementById('box-pendentes');
+    const taxaGlobal = totalGeral > 0 ? Math.round(((totalGeral - pendenteGeral) / totalGeral) * 100) : 100;
+    boxPendentes.querySelector('strong').textContent = `Blocos Pendentes (${taxaGlobal}% Global):`;
+}
