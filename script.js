@@ -176,6 +176,9 @@ const hierarquiaIgrejas = {
         "SÃO GABRIEL": ["PAULO SEXTO"],
         "SAVASSI": ["ALTO VERA CRUZ", "CASTANHEIRAS", "JARDIM CANADA", "PILAR", "RAJA", "SANTA EFIGENIA", "SAVASSI", "SERRA", "TAQUARIL"],
         "VALE DO JATOBA": ["ANTIGO MINEIRAO", "MARILANDIA", "OLARIA", "VALE DO JATOBA", "VILA PINHO"]
+    },
+    "CATEDRAL": {
+        "CATEDRAL": ["CATEDRAL"]
     }
 };
 
