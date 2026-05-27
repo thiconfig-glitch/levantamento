@@ -417,16 +417,26 @@ btnAbrir.onclick = () => {
     modal.style.display = 'block';
 }
 
-function renderizarPainel() {
+const buscaIgreja = document.getElementById('busca-igreja');
+buscaIgreja.addEventListener('input', (e) => {
+    renderizarPainel(e.target.value.toLowerCase());
+});
+
+function renderizarPainel(filtro = '') {
     const lista = document.getElementById('lista-registros');
     lista.innerHTML = '';
 
     if (registrosDesignados.length === 0) {
-        lista.innerHTML = '<p>Nenhuma quantidade designada nesta sessão.</p>';
+        lista.innerHTML = '<p>Nenhuma quantidade designada ainda.</p>';
         return;
     }
 
+    let encontrouAlgum = false;
+
     registrosDesignados.forEach((reg, index) => {
+        if (filtro && !reg.igreja.toLowerCase().includes(filtro) && !reg.regiao.toLowerCase().includes(filtro)) return;
+        encontrouAlgum = true;
+        
         if (index === editandoIndex) {
             let inputsHTML = '';
             for (const chave in reg.livros) {
@@ -466,6 +476,10 @@ function renderizarPainel() {
             </div>`;
         }
     });
+
+    if (!encontrouAlgum) {
+        lista.innerHTML = '<p>Nenhum cenáculo encontrado na busca.</p>';
+    }
 }
 
 window.ativarEdicao = (index) => {
