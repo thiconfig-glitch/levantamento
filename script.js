@@ -1,17 +1,23 @@
-// 1. BASE DE DADOS
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyDi7RXy9KSagQIrjkjEhKM7g_FZysXrpx0",
+    authDomain: "levantamento2026-918f5.firebaseapp.com",
+    projectId: "levantamento2026-918f5",
+    storageBucket: "levantamento2026-918f5.firebasestorage.app",
+    messagingSenderId: "414332716833",
+    appId: "1:414332716833:web:9084f88a76e623c6d12060"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// Base de Dados (Temporária até inserir a lista completa)
 const hierarquiaIgrejas = {
     "VENDA NOVA": {
         "CEU AZUL": ["CEU AZUL", "SANTA MONICA"],
-        "ESPERANCA": ["ESPERANCA", "JARDIM SAO JUDAS", "JUSTINOPOLIS"],
-        "FORTALEZA": ["FORTALEZA", "LAGOA", "NOVA PAMPULHA"],
-        "LAGOA SANTA": ["LAGOA SANTA", "SERRA DO CIPO", "VILA MARIA"],
-        "MANTIQUEIRA": ["AREIAS", "MANTIQUEIRA", "MARIA HELENA"],
-        "PARAUNA": ["LETICIA", "PARAUNA", "RIO BRANCO"],
-        "RIBEIRAO DAS NEVES": ["RIBEIRAO DAS NEVES", "ROSANEVES", "SAN MARINO", "SANTINHO"],
-        "SANTA LUZIA BH": ["BOM DESTINO", "DUQUESA", "FRIMISA", "JABOTICATUBAS", "PALMITAL", "PINHAO", "SANTA LUZIA", "SAO BENEDITO", "TAQUARACU"],
-        "SAO BERNARDO": ["FLORAMAR", "GUARANI", "SAO BERNARDO", "TUPI"],
-        "VENDA NOVA": ["CANAAN", "PEDRA BRANCA", "SERRA VERDE", "VENDA NOVA", "VILA SAO JOAO BATISTA"],
-        "VESPASIANO": ["GAVEA", "MORRO ALTO", "SAO JOSE DA LAPA", "VESPASIANO"]
+        "ESPERANCA": ["ESPERANCA", "JARDIM SAO JUDAS", "JUSTINOPOLIS"]
     },
     "MONTES CLAROS": {
         "CENTRO": ["CATEDRAL MONTES CLAROS", "MARACANÃ"],
@@ -35,11 +41,6 @@ const nomesLivros = {
     'filhoDono': 'Filho Dono', 'virgens': '10 Virgens', 'ovelha': 'Ovelha'
 };
 
-// ==========================================
-// ÁREA RESERVADA PARA O FIREBASE
-// ==========================================
-
-// 2. ESTADO DA APLICAÇÃO
 let blocoAtivo = null;
 let saldosAtuais = {};
 let registrosDesignados = []; 
@@ -51,7 +52,6 @@ const mapeamentoCampos = {
     'filho-dono': 'saldo-filho-dono', 'virgens': 'saldo-virgens', 'ovelha': 'saldo-ovelha'
 };
 
-// 3. FLUXO DE LOGIN
 document.getElementById('btn-entrar').addEventListener('click', (e) => {
     e.preventDefault();
     const acessoBruto = document.getElementById('email-login').value.replace(/\s+/g, '').toUpperCase();
@@ -60,7 +60,6 @@ document.getElementById('btn-entrar').addEventListener('click', (e) => {
     if (blocoAtivo && hierarquiaIgrejas[blocoAtivo]) {
         document.getElementById('login-section').style.display = 'none';
         document.getElementById('form-section').style.display = 'block';
-        
         document.getElementById('titulo-modal').textContent = `Livros Designados (${blocoAtivo})`;
 
         carregarRegioes(blocoAtivo);
@@ -71,7 +70,6 @@ document.getElementById('btn-entrar').addEventListener('click', (e) => {
     }
 });
 
-// 4. SELETORES
 const seletorRegiao = document.getElementById('seletor-regiao');
 const seletorIgreja = document.getElementById('seletor-igreja');
 
@@ -91,7 +89,6 @@ seletorRegiao.addEventListener('change', (e) => {
     }
 });
 
-// 5. CÁLCULO EM TEMPO REAL E TRAVAS
 function aplicarTravasIniciais() {
     for (const [idInput, idSpan] of Object.entries(mapeamentoCampos)) {
         const chaveObjeto = idInput === 'filho-dono' ? 'filhoDono' : idInput;
@@ -122,11 +119,14 @@ function aplicarTravasIniciais() {
     }
 }
 
-// 6. PROCESSAMENTO DE ENVIO PRINCIPAL
-document.getElementById('form-livros').addEventListener('submit', (e) => {
+document.getElementById('form-livros').addEventListener('submit', async (e) => {
     e.preventDefault();
     const valoresEnviados = {};
     let totalLivros = 0;
+    const btnSubmit = document.querySelector('button[type="submit"]');
+    
+    btnSubmit.disabled = true;
+    btnSubmit.textContent = "A gravar...";
 
     for (const idInput of Object.keys(mapeamentoCampos)) {
         const chaveObjeto = idInput === 'filho-dono' ? 'filhoDono' : idInput;
@@ -137,24 +137,41 @@ document.getElementById('form-livros').addEventListener('submit', (e) => {
 
     if (totalLivros === 0) {
         alert("Necessitas de designar pelo menos 1 livro antes de enviar.");
+        btnSubmit.disabled = false;
+        btnSubmit.textContent = "Designar Quantidades";
         return;
     }
 
-    registrosDesignados.push({
-        regiao: seletorRegiao.value, 
-        igreja: seletorIgreja.value, 
-        livros: valoresEnviados
-    });
+    try {
+        await addDoc(collection(db, "distribuicoes"), {
+            bloco: blocoAtivo,
+            regiao: seletorRegiao.value,
+            igreja: seletorIgreja.value,
+            livros: valoresEnviados,
+            timestamp: serverTimestamp()
+        });
 
-    for (const chave in valoresEnviados) saldosAtuais[chave] -= valoresEnviados[chave];
+        registrosDesignados.push({
+            regiao: seletorRegiao.value, 
+            igreja: seletorIgreja.value, 
+            livros: valoresEnviados
+        });
 
-    seletorIgreja.innerHTML = '<option value="">Selecione primeiro a região...</option>';
-    seletorIgreja.disabled = true;
-    document.getElementById('form-livros').reset();
-    aplicarTravasIniciais(); 
+        for (const chave in valoresEnviados) saldosAtuais[chave] -= valoresEnviados[chave];
+
+        seletorIgreja.innerHTML = '<option value="">Selecione primeiro a região...</option>';
+        seletorIgreja.disabled = true;
+        document.getElementById('form-livros').reset();
+        aplicarTravasIniciais(); 
+    } catch (error) {
+        console.error("Erro ao gravar: ", error);
+        alert("Falha na comunicação com o servidor.");
+    } finally {
+        btnSubmit.disabled = false;
+        btnSubmit.textContent = "Designar Quantidades";
+    }
 });
 
-// 7. MOTOR DO PAINEL E EDIÇÃO DIRETA
 const modal = document.getElementById('modal-painel');
 const btnAbrir = document.getElementById('btn-abrir-painel');
 const btnFechar = document.querySelector('.close-btn');
@@ -193,8 +210,8 @@ function renderizarPainel() {
                 <div class="registro-header">
                     <div><strong>Região:</strong> ${reg.regiao} | <strong>Cenáculo:</strong> ${reg.igreja}</div>
                     <div>
-                        <button type="button" class="btn-salvar" onclick="salvarEdicao(${index})">Salvar</button>
-                        <button type="button" class="btn-cancelar" onclick="cancelarEdicao()">Cancelar</button>
+                        <button type="button" class="btn-salvar" onclick="window.salvarEdicao(${index})">Salvar</button>
+                        <button type="button" class="btn-cancelar" onclick="window.cancelarEdicao()">Cancelar</button>
                     </div>
                 </div>
                 <div class="edit-grid">${inputsHTML}</div>
@@ -202,14 +219,13 @@ function renderizarPainel() {
         } else {
             const itens = Object.entries(reg.livros)
                 .filter(([_, qtd]) => qtd > 0)
-                .map(([chave, qtd]) => `<strong>${nomesLivros[chave]}:</strong> ${qtd}`)
-                .join(', ');
+                .map(([chave, qtd]) => `<strong>${nomesLivros[chave]}:</strong> ${qtd}`).join(', ');
 
             lista.innerHTML += `
             <div class="registro-item">
                 <div class="registro-header">
                     <div><strong>Região:</strong> ${reg.regiao} | <strong>Cenáculo:</strong> ${reg.igreja}</div>
-                    <button type="button" class="btn-editar" onclick="ativarEdicao(${index})">Editar</button>
+                    <button type="button" class="btn-editar" onclick="window.ativarEdicao(${index})">Editar</button>
                 </div>
                 <div style="font-size: 0.95em;">${itens || 'Nenhum livro designado.'}</div>
             </div>`;
@@ -217,6 +233,7 @@ function renderizarPainel() {
     });
 }
 
+// Funções expostas no escopo global para funcionarem com os módulos
 window.ativarEdicao = (index) => {
     editandoIndex = index;
     renderizarPainel();
@@ -240,7 +257,7 @@ window.salvarEdicao = (index) => {
             if (novoQtd < 0) novoQtd = 0;
             
             if (novoQtd > limiteMaximo) {
-                alert(`Erro: A quantidade de "${nomesLivros[chave]}" não pode ultrapassar ${limiteMaximo}.`);
+                alert(`Erro: A quantidade ultrapassa o limite de ${limiteMaximo}.`);
                 erroMatematico = true;
                 break;
             }
