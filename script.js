@@ -180,22 +180,23 @@ const hierarquiaIgrejas = {
 };
 
 const limitesBlocos = {
-    "VENDA NOVA": { biblia: 67, somos3: 46, carater: 43, arrependimento: 35, avivamento: 36, filhoDono: 44, virgens: 43, ovelha: 42 },
-    "MONTES CLAROS": { biblia: 43, somos3: 0, carater: 0, arrependimento: 0, avivamento: 0, filhoDono: 0, virgens: 0, ovelha: 0 },
-    "VARGINHA": { biblia: 0, somos3: 0, carater: 0, arrependimento: 0, avivamento: 0, filhoDono: 0, virgens: 0, ovelha: 0 },
-    "UBERLANDIA": { biblia: 0, somos3: 0, carater: 0, arrependimento: 0, avivamento: 0, filhoDono: 0, virgens: 0, ovelha: 0 },
-    "UBERABA": { biblia: 0, somos3: 0, carater: 0, arrependimento: 0, avivamento: 0, filhoDono: 0, virgens: 0, ovelha: 0 },
-    "UBÁ": { biblia: 0, somos3: 0, carater: 0, arrependimento: 0, avivamento: 0, filhoDono: 0, virgens: 0, ovelha: 0 },
-    "TEOFILO OTONI": { biblia: 0, somos3: 0, carater: 0, arrependimento: 0, avivamento: 0, filhoDono: 0, virgens: 0, ovelha: 0 },
-    "SETE LAGOAS": { biblia: 0, somos3: 0, carater: 0, arrependimento: 0, avivamento: 0, filhoDono: 0, virgens: 0, ovelha: 0 },
-    "ITABIRA": { biblia: 0, somos3: 0, carater: 0, arrependimento: 0, avivamento: 0, filhoDono: 0, virgens: 0, ovelha: 0 },
-    "GOVERNADOR VALADARES": { biblia: 0, somos3: 0, carater: 0, arrependimento: 0, avivamento: 0, filhoDono: 0, virgens: 0, ovelha: 0 },
-    "JUIZ DE FORA": { biblia: 0, somos3: 0, carater: 0, arrependimento: 0, avivamento: 0, filhoDono: 0, virgens: 0, ovelha: 0 },
-    "ELDORADO": { biblia: 0, somos3: 0, carater: 0, arrependimento: 0, avivamento: 0, filhoDono: 0, virgens: 0, ovelha: 0 },
-    "DIVINOPOLIS": { biblia: 0, somos3: 0, carater: 0, arrependimento: 0, avivamento: 0, filhoDono: 0, virgens: 0, ovelha: 0 },
-    "CONSELHEIRO LAFAIETE": { biblia: 0, somos3: 0, carater: 0, arrependimento: 0, avivamento: 0, filhoDono: 0, virgens: 0, ovelha: 0 },
-    "BETIM": { biblia: 0, somos3: 0, carater: 0, arrependimento: 0, avivamento: 0, filhoDono: 0, virgens: 0, ovelha: 0 },
-    "BELO HORIZONTE": { biblia: 0, somos3: 0, carater: 0, arrependimento: 0, avivamento: 0, filhoDono: 0, virgens: 0, ovelha: 0 }
+    "BELO HORIZONTE": { "biblia": 95, "somos3": 22, "carater": 14, "arrependimento": 18, "avivamento": 11, "filhoDono": 25, "virgens": 16, "ovelha": 20 },
+    "BETIM": { "biblia": 50, "somos3": 0, "carater": 5, "arrependimento": 0, "avivamento": 0, "filhoDono": 40, "virgens": 0, "ovelha": 1 },
+    "CATEDRAL": { "biblia": 26, "somos3": 55, "carater": 38, "arrependimento": 18, "avivamento": 23, "filhoDono": 8, "virgens": 55, "ovelha": 53 },
+    "CONSELHEIRO LAFAIETE": { "biblia": 11, "somos3": 0, "carater": 0, "arrependimento": 0, "avivamento": 0, "filhoDono": 0, "virgens": 0, "ovelha": 0 },
+    "DIVINOPOLIS": { "biblia": 0, "somos3": 0, "carater": 0, "arrependimento": 0, "avivamento": 0, "filhoDono": 0, "virgens": 0, "ovelha": 0 },
+    "ELDORADO": { "biblia": 19, "somos3": 1, "carater": 0, "arrependimento": 0, "avivamento": 0, "filhoDono": 2, "virgens": 0, "ovelha": 0 },
+    "GOVERNADOR VALADARES": { "biblia": 27, "somos3": 6, "carater": 7, "arrependimento": 7, "avivamento": 6, "filhoDono": 7, "virgens": 6, "ovelha": 6 },
+    "ITABIRA": { "biblia": 15, "somos3": 0, "carater": 0, "arrependimento": 0, "avivamento": 0, "filhoDono": 0, "virgens": 0, "ovelha": 0 },
+    "JUIZ DE FORA": { "biblia": 23, "somos3": 5, "carater": 4, "arrependimento": 4, "avivamento": 3, "filhoDono": 4, "virgens": 7, "ovelha": 5 },
+    "MONTES CLAROS": { "biblia": 43, "somos3": 0, "carater": 0, "arrependimento": 0, "avivamento": 0, "filhoDono": 0, "virgens": 0, "ovelha": 0 },
+    "SETE LAGOAS": { "biblia": 30, "somos3": 2, "carater": 2, "arrependimento": 2, "avivamento": 2, "filhoDono": 4, "virgens": 3, "ovelha": 2 },
+    "TEOFILO OTONI": { "biblia": 36, "somos3": 4, "carater": 4, "arrependimento": 4, "avivamento": 4, "filhoDono": 4, "virgens": 4, "ovelha": 4 },
+    "UBÁ": { "biblia": 15, "somos3": 0, "carater": 0, "arrependimento": 0, "avivamento": 0, "filhoDono": 0, "virgens": 0, "ovelha": 0 },
+    "UBERABA": { "biblia": 7, "somos3": 2, "carater": 7, "arrependimento": 2, "avivamento": 2, "filhoDono": 2, "virgens": 2, "ovelha": 2 },
+    "UBERLANDIA": { "biblia": 144, "somos3": 17, "carater": 24, "arrependimento": 20, "avivamento": 18, "filhoDono": 19, "virgens": 21, "ovelha": 21 },
+    "VARGINHA": { "biblia": 42, "somos3": 40, "carater": 52, "arrependimento": 40, "avivamento": 45, "filhoDono": 41, "virgens": 43, "ovelha": 44 },
+    "VENDA NOVA": { "biblia": 67, "somos3": 46, "carater": 43, "arrependimento": 35, "avivamento": 36, "filhoDono": 44, "virgens": 43, "ovelha": 42 }
 };
 
 const dicionarioAcessos = {
@@ -214,11 +215,8 @@ const dicionarioAcessos = {
     "DIVINOPOLIS": "DIVINOPOLIS",
     "CONSELHEIROLAFAIETE": "CONSELHEIRO LAFAIETE",
     "BETIM": "BETIM",
-    "BELOHORIZONTE": "BELO HORIZONTE"
-};
-const dicionarioAcessos = {
-    "VENDANOVA": "VENDA NOVA",
-    "MONTESCLAROS": "MONTES CLAROS"
+    "BELOHORIZONTE": "BELO HORIZONTE",
+    "CATEDRAL": "CATEDRAL"
 };
 
 const nomesLivros = {
@@ -252,7 +250,7 @@ document.getElementById('btn-entrar').addEventListener('click', (e) => {
         saldosAtuais = { ...limitesBlocos[blocoAtivo] }; 
         aplicarTravasIniciais();
     } else {
-        alert("Acesso não reconhecido.");
+        alert("Acesso não reconhecido ou bloco sem igrejas configuradas.");
     }
 });
 
@@ -419,7 +417,6 @@ function renderizarPainel() {
     });
 }
 
-// Funções expostas no escopo global para funcionarem com os módulos
 window.ativarEdicao = (index) => {
     editandoIndex = index;
     renderizarPainel();
