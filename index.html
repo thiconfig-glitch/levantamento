@@ -1,1 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle de Livros - EBI 2026</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
+    <div id="login-section" class="card">
+        <h2>Acesso do Bloco</h2>
+        <input type="text" id="email-login" placeholder="Acesso do Bloco (Ex: VendaNova)" required>
+        <input type="password" id="senha-login" placeholder="Senha" required>
+        <button id="btn-entrar">Entrar</button>
+    </div>
+
+    <div id="form-section" class="card" style="display: none;">
+        <h2>Levantamento de Materiais</h2>
+        
+        <div class="info-box">
+            <strong>Instrução Operacional:</strong> Os saldos disponíveis abaixo refletem estritamente as quantidades pré-aprovadas no levantamento feito anteriormente pelo teu bloco. O objetivo desta etapa é gerenciar a logística, <strong>distribuindo</strong> o material já garantido entre as regiões e igrejas (cenáculos).
+        </div>
+
+        <button id="btn-abrir-painel" type="button" class="btn-secundario">Acompanhar Livros Designados</button>
+        <hr>
+
+        <form id="form-livros">
+            <fieldset>
+                <legend>Localidade</legend>
+                
+                <label for="seletor-regiao">Região:</label>
+                <select id="seletor-regiao" required disabled>
+                    <option value="">Selecione primeiro o login...</option>
+                </select>
+
+                <label for="seletor-igreja">Igreja (Cenáculo):</label>
+                <select id="seletor-igreja" required disabled>
+                    <option value="">Selecione primeiro a região...</option>
+                </select>
+            </fieldset>
+
+            <fieldset>
+                <legend>Literatura EBI 2026</legend>
+                <div class="grid-livros">
+                    <div class="input-group">
+                        <label for="biblia">Bíblia Capa Dura <span id="saldo-biblia" class="badge"></span>:</label>
+                        <input type="number" id="biblia" min="0" value="0" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="somos3">Somos 3 em Um <span id="saldo-somos3" class="badge"></span>:</label>
+                        <input type="number" id="somos3" min="0" value="0" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="carater">Caráter de Deus <span id="saldo-carater" class="badge"></span>:</label>
+                        <input type="number" id="carater" min="0" value="0" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="arrependimento">Arrependimento <span id="saldo-arrependimento" class="badge"></span>:</label>
+                        <input type="number" id="arrependimento" min="0" value="0" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="avivamento">Avivamento <span id="saldo-avivamento" class="badge"></span>:</label>
+                        <input type="number" id="avivamento" min="0" value="0" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="filho-dono">Filho do Dono <span id="saldo-filho-dono" class="badge"></span>:</label>
+                        <input type="number" id="filho-dono" min="0" value="0" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="virgens">10 Virgens <span id="saldo-virgens" class="badge"></span>:</label>
+                        <input type="number" id="virgens" min="0" value="0" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="ovelha">Ovelha Perdida <span id="saldo-ovelha" class="badge"></span>:</label>
+                        <input type="number" id="ovelha" min="0" value="0" required>
+                    </div>
+                </div>
+            </fieldset>
+
+            <button type="submit">Designar Quantidades</button>
+        </form>
+    </div>
+
+    <div id="modal-painel" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2 id="titulo-modal">Livros Designados</h2>
+            <div id="lista-registros">
+                <p>Nenhuma quantidade designada ainda.</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
