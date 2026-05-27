@@ -236,7 +236,20 @@ function renderizarProgresso() {
         const pendente = limiteTotal - designadoTotal;
         const porcentagem = limiteTotal === 0 ? 100 : Math.min(100, Math.round((designadoTotal / limiteTotal) * 100));
 
-        return { bloco, limiteTotal, designadoTotal, pendente, porcentagem };
+        let detalhesFalta = [];
+        for (const chave in limites) {
+            let gastoLivro = 0;
+            registrosDoBloco.forEach(reg => {
+                gastoLivro += (reg.livros[chave] || 0);
+            });
+            const faltaLivro = limites[chave] - gastoLivro;
+            if (faltaLivro > 0) {
+                detalhesFalta.push(`<strong>${nomesLivrosAdmin[chave]}:</strong> ${faltaLivro}`);
+            }
+        }
+        const stringDetalhes = detalhesFalta.length > 0 ? detalhesFalta.join(' | ') : '<span style="color:#28a745;">Tudo designado</span>';
+
+        return { bloco, limiteTotal, designadoTotal, pendente, porcentagem, stringDetalhes };
     }).filter(b => b !== null);
 
     progressoBlocos.sort((a, b) => a.porcentagem - b.porcentagem);
@@ -258,6 +271,7 @@ function renderizarProgresso() {
                 <td>${pb.limiteTotal}</td>
                 <td>${pb.designadoTotal}</td>
                 <td style="color: ${pb.pendente > 0 ? '#dc3545' : '#28a745'}; font-weight: bold;">${pb.pendente}</td>
+                <td style="font-size: 0.85em;">${pb.stringDetalhes}</td>
                 <td style="min-width: 150px;">
                     <div style="background-color: #e9ecef; border-radius: 4px; width: 100%; height: 12px; margin-bottom: 5px; overflow: hidden;">
                         <div style="background-color: ${corStatus}; width: ${pb.porcentagem}%; height: 100%; border-radius: 4px;"></div>
