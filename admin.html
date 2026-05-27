@@ -1,1 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel do Administrador - EBI 2026</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
+    <div class="card" style="max-width: 1000px; margin: 40px auto;">
+        <h2>Visão Master: Controle de Distribuição</h2>
+        
+        <div class="kpi-container">
+            <div class="kpi-card">
+                Total de Livros Designados
+                <strong id="kpi-total">0</strong>
+            </div>
+            <div class="kpi-card">
+                Última Movimentação
+                <strong id="kpi-ultima-acao">--:--</strong>
+            </div>
+        </div>
+
+        <hr>
+
+        <div class="filter-bar">
+            <label for="filtro-bloco">Filtrar por Bloco:</label>
+            <select id="filtro-bloco">
+                <option value="TODOS">Visualizar Todos os Blocos</option>
+                </select>
+        </div>
+
+        <div style="overflow-x: auto;">
+            <table id="tabela-admin">
+                <thead>
+                    <tr>
+                        <th>Data/Hora</th>
+                        <th>Bloco</th>
+                        <th>Região</th>
+                        <th>Cenáculo</th>
+                        <th>Livros Designados</th>
+                    </tr>
+                </thead>
+                <tbody id="corpo-tabela">
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: #666;">
+                            Aguardando conexão com o banco de dados...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="admin-script.js"></script>
+</body>
+</html>
