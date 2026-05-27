@@ -230,21 +230,24 @@ function renderizarProgresso() {
         const registrosDoBloco = registrosGlobais.filter(r => r.bloco === bloco);
         let designadoTotal = 0;
         registrosDoBloco.forEach(reg => {
-            designadoTotal += Object.values(reg.livros).reduce((a, b) => a + b, 0);
+            for (const key in reg.livros) {
+                designadoTotal += (reg.livros[key] || 0);
+            }
         });
 
         const pendente = limiteTotal - designadoTotal;
-        const porcentagem = limiteTotal === 0 ? 100 : Math.min(100, Math.round((designadoTotal / limiteTotal) * 100));
+        const porcentagem = limiteTotal === 0 ? 100 : Math.max(0, Math.min(100, Math.round((designadoTotal / limiteTotal) * 100)));
 
         let detalhesFalta = [];
         for (const chave in limites) {
             let gastoLivro = 0;
             registrosDoBloco.forEach(reg => {
-                gastoLivro += (reg.livros[chave] || 0);
+                const dbKey = chave === 'filho-dono' ? 'filhoDono' : chave;
+                gastoLivro += (reg.livros[dbKey] || 0);
             });
             const faltaLivro = limites[chave] - gastoLivro;
             if (faltaLivro > 0) {
-                detalhesFalta.push(`<strong>${nomesLivrosAdmin[chave]}:</strong> ${faltaLivro}`);
+                detalhesFalta.push(`<strong>${nomesLivrosAdmin[chave] || chave}:</strong> ${faltaLivro}`);
             }
         }
         const stringDetalhes = detalhesFalta.length > 0 ? detalhesFalta.join(' | ') : '<span style="color:#28a745;">Tudo designado</span>';
