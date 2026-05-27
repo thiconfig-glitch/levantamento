@@ -239,6 +239,12 @@ const mapeamentoCampos = {
 document.getElementById('btn-entrar').addEventListener('click', (e) => {
     e.preventDefault();
     const acessoBruto = document.getElementById('email-login').value.replace(/\s+/g, '').toUpperCase();
+    
+    if (acessoBruto === "ADMIN") {
+        window.location.href = "admin.html";
+        return;
+    }
+
     blocoAtivo = dicionarioAcessos[acessoBruto];
 
     if (blocoAtivo && hierarquiaIgrejas[blocoAtivo]) {

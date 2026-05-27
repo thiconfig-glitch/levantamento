@@ -115,3 +115,47 @@ seletorFiltro.addEventListener('change', (e) => {
         calcularKPIs(dadosFiltrados);
     }
 });
+
+document.getElementById('btn-exportar').addEventListener('click', () => {
+    const blocoSelecionado = seletorFiltro.value;
+    let dadosParaExportar = registrosGlobais;
+    
+    if (blocoSelecionado !== "TODOS") {
+        dadosParaExportar = registrosGlobais.filter(r => r.bloco === blocoSelecionado);
+    }
+
+    if (dadosParaExportar.length === 0) {
+        alert("Não há dados para exportar.");
+        return;
+    }
+
+    const chavesLivros = Object.keys(nomesLivrosAdmin);
+    const cabecalhoLivros = chavesLivros.map(chave => nomesLivrosAdmin[chave]).join(';');
+    
+    let csvContent = "Data/Hora;Bloco;Regiao;Cenaculo;" + cabecalhoLivros + "\n";
+
+    dadosParaExportar.forEach(reg => {
+        const dataFormatada = reg.timestamp.toLocaleString('pt-BR');
+        let linha = `"${dataFormatada}";"${reg.bloco}";"${reg.regiao}";"${reg.igreja}"`;
+        
+        chavesLivros.forEach(chave => {
+            const qtd = reg.livros && reg.livros[chave] ? reg.livros[chave] : 0;
+            linha += `;${qtd}`;
+        });
+        
+        csvContent += linha + "\n";
+    });
+
+    const bom = "\uFEFF";
+    const blob = new Blob([bom + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    
+    const a = document.createElement('a');
+    a.href = url;
+    const dataAtual = new Date().toISOString().slice(0,10);
+    a.download = `exportacao_${blocoSelecionado !== 'TODOS' ? blocoSelecionado : 'todos'}_${dataAtual}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+});
