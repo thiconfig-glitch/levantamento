@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, collection, onSnapshot, query, orderBy, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyDi7RXy9KSagQIrjkjEhKM7g_FZysXrpx0",
@@ -51,8 +51,19 @@ onSnapshot(q, (snapshot) => {
     atualizarBlocosPendentes();
 }, (error) => {
     console.error("Erro ao ler o banco:", error);
-    corpoTabela.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">Erro de permissão no Firebase ou aguardando conexão...</td></tr>';
+    corpoTabela.innerHTML = '<tr><td colspan="6" style="text-align:center; color:red;">Erro de permissão no Firebase ou aguardando conexão...</td></tr>';
 });
+
+window.excluirRegistro = async (id) => {
+    if (confirm("Tem certeza que deseja excluir este registro? Essa ação não pode ser desfeita.")) {
+        try {
+            await deleteDoc(doc(db, "distribuicoes", id));
+        } catch (error) {
+            console.error("Erro ao excluir:", error);
+            alert("Erro ao excluir o registro.");
+        }
+    }
+};
 
 function atualizarBlocosPendentes() {
     const boxPendentes = document.getElementById('box-pendentes');
@@ -89,7 +100,7 @@ function atualizarFiltros() {
 function renderizarTabela(dados) {
     corpoTabela.innerHTML = '';
     if (dados.length === 0) {
-        corpoTabela.innerHTML = '<tr><td colspan="5" style="text-align:center;">Nenhum registo encontrado no banco.</td></tr>';
+        corpoTabela.innerHTML = '<tr><td colspan="6" style="text-align:center;">Nenhum registo encontrado no banco.</td></tr>';
         return;
     }
 
@@ -106,6 +117,9 @@ function renderizarTabela(dados) {
                 <td>${reg.regiao}</td>
                 <td>${reg.igreja}</td>
                 <td>${stringLivros}</td>
+                <td>
+                    <button onclick="excluirRegistro('${reg.id}')" style="background-color: #dc3545; padding: 5px 10px; font-size: 0.8em; text-transform: none; width: auto;">Excluir</button>
+                </td>
             </tr>`;
     });
 }
