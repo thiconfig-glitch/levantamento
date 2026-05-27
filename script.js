@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, collection, doc, setDoc, updateDoc, query, where, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyDi7RXy9KSagQIrjkjEhKM7g_FZysXrpx0",
@@ -239,7 +239,7 @@ const mapeamentoCampos = {
     'filho-dono': 'saldo-filho-dono', 'virgens': 'saldo-virgens', 'ovelha': 'saldo-ovelha'
 };
 
-document.getElementById('btn-entrar').addEventListener('click', (e) => {
+document.getElementById('btn-entrar').addEventListener('click', async (e) => {
     e.preventDefault();
     const acessoBruto = document.getElementById('email-login').value.replace(/\s+/g, '').toUpperCase();
     
@@ -251,13 +251,46 @@ document.getElementById('btn-entrar').addEventListener('click', (e) => {
     blocoAtivo = dicionarioAcessos[acessoBruto];
 
     if (blocoAtivo && hierarquiaIgrejas[blocoAtivo]) {
-        document.getElementById('login-section').style.display = 'none';
-        document.getElementById('form-section').style.display = 'block';
-        document.getElementById('titulo-modal').textContent = `Livros Designados (${blocoAtivo})`;
+        const btnEntrar = document.getElementById('btn-entrar');
+        btnEntrar.disabled = true;
+        btnEntrar.textContent = "Carregando...";
 
-        carregarRegioes(blocoAtivo);
-        saldosAtuais = { ...limitesBlocos[blocoAtivo] }; 
-        aplicarTravasIniciais();
+        try {
+            saldosAtuais = { ...limitesBlocos[blocoAtivo] }; 
+            registrosDesignados = [];
+
+            const q = query(collection(db, "distribuicoes"), where("bloco", "==", blocoAtivo));
+            const querySnapshot = await getDocs(q);
+            
+            querySnapshot.forEach((docSnap) => {
+                const data = docSnap.data();
+                registrosDesignados.push({
+                    regiao: data.regiao,
+                    igreja: data.igreja,
+                    livros: data.livros,
+                    docId: docSnap.id
+                });
+                
+                for (const chave in data.livros) {
+                    if (saldosAtuais[chave] !== undefined) {
+                        saldosAtuais[chave] -= data.livros[chave];
+                    }
+                }
+            });
+
+            document.getElementById('login-section').style.display = 'none';
+            document.getElementById('form-section').style.display = 'block';
+            document.getElementById('titulo-modal').textContent = `Livros Designados (${blocoAtivo})`;
+
+            carregarRegioes(blocoAtivo);
+            aplicarTravasIniciais();
+        } catch (error) {
+            console.error("Erro ao carregar dados:", error);
+            alert("Erro ao conectar com o banco de dados.");
+        } finally {
+            btnEntrar.disabled = false;
+            btnEntrar.textContent = "Entrar";
+        }
     } else {
         alert("Acesso não reconhecido ou bloco sem igrejas configuradas.");
     }
@@ -314,9 +347,16 @@ function aplicarTravasIniciais() {
 
 document.getElementById('form-livros').addEventListener('submit', async (e) => {
     e.preventDefault();
+    const btnSubmit = document.querySelector('button[type="submit"]');
+
+    const jaExiste = registrosDesignados.some(r => r.igreja === seletorIgreja.value && r.regiao === seletorRegiao.value);
+    if (jaExiste) {
+        alert("Esta igreja já recebeu livros. Use o botão 'Acompanhar Livros Designados' para editar a quantidade em vez de enviar de novo.");
+        return;
+    }
+
     const valoresEnviados = {};
     let totalLivros = 0;
-    const btnSubmit = document.querySelector('button[type="submit"]');
     
     btnSubmit.disabled = true;
     btnSubmit.textContent = "A gravar...";
@@ -336,7 +376,8 @@ document.getElementById('form-livros').addEventListener('submit', async (e) => {
     }
 
     try {
-        await addDoc(collection(db, "distribuicoes"), {
+        const docId = `${blocoAtivo}_${seletorRegiao.value}_${seletorIgreja.value}`.replace(/[\s\/]+/g, '_');
+        await setDoc(doc(db, "distribuicoes", docId), {
             bloco: blocoAtivo,
             regiao: seletorRegiao.value,
             igreja: seletorIgreja.value,
@@ -347,7 +388,8 @@ document.getElementById('form-livros').addEventListener('submit', async (e) => {
         registrosDesignados.push({
             regiao: seletorRegiao.value, 
             igreja: seletorIgreja.value, 
-            livros: valoresEnviados
+            livros: valoresEnviados,
+            docId: docId
         });
 
         for (const chave in valoresEnviados) saldosAtuais[chave] -= valoresEnviados[chave];
@@ -436,7 +478,7 @@ window.cancelarEdicao = () => {
     renderizarPainel();
 };
 
-window.salvarEdicao = (index) => {
+window.salvarEdicao = async (index) => {
     const reg = registrosDesignados[index];
     const novosValores = {};
     let erroMatematico = false;
@@ -461,15 +503,26 @@ window.salvarEdicao = (index) => {
 
     if (erroMatematico) return;
 
-    for (const chave in novosValores) {
-        const delta = novosValores[chave] - reg.livros[chave];
-        saldosAtuais[chave] -= delta; 
-        reg.livros[chave] = novosValores[chave];
-    }
+    try {
+        const docId = reg.docId || `${blocoAtivo}_${reg.regiao}_${reg.igreja}`.replace(/[\s\/]+/g, '_');
+        await updateDoc(doc(db, "distribuicoes", docId), {
+            livros: novosValores,
+            timestamp: serverTimestamp()
+        });
 
-    editandoIndex = -1;
-    renderizarPainel();
-    aplicarTravasIniciais(); 
+        for (const chave in novosValores) {
+            const delta = novosValores[chave] - reg.livros[chave];
+            saldosAtuais[chave] -= delta; 
+            reg.livros[chave] = novosValores[chave];
+        }
+
+        editandoIndex = -1;
+        renderizarPainel();
+        aplicarTravasIniciais(); 
+    } catch (error) {
+        console.error("Erro ao atualizar: ", error);
+        alert("Falha na comunicação com o servidor ao editar.");
+    }
 };
 
 btnFechar.onclick = () => modal.style.display = 'none';
