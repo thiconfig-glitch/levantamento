@@ -1,13 +1,10 @@
-/* =========================================
-   1. REGRAS GLOBAIS E RESET
-   ========================================= */
 * {
     box-sizing: border-box;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 body {
-    background-color: #0a162d; /* Azul institucional escuro */
+    background-color: #0a162d; 
     display: flex;
     justify-content: center;
     align-items: flex-start;
@@ -33,20 +30,12 @@ h2 {
     text-transform: uppercase;
     font-weight: 800;
     letter-spacing: 1px;
-    border-bottom: 3px solid #0099ff; /* Destaque azul claro */
+    border-bottom: 3px solid #0099ff; 
     padding-bottom: 10px;
 }
 
-hr { 
-    border: 0; 
-    height: 1px; 
-    background: #ddd; 
-    margin: 20px 0; 
-}
+hr { border: 0; height: 1px; background: #ddd; margin: 20px 0; }
 
-/* =========================================
-   2. COMPONENTES DE AVISO E INFORMAÇÃO
-   ========================================= */
 .info-box {
     background-color: #e6f7ff;
     border-left: 4px solid #0099ff;
@@ -58,19 +47,10 @@ hr {
     line-height: 1.5;
 }
 
-.info-box strong {
-    color: #007acc;
-}
+.info-box strong { color: #007acc; }
 
-.badge {
-    color: #0099ff;
-    font-weight: bold;
-    font-size: 0.95em;
-}
+.badge { color: #0099ff; font-weight: bold; font-size: 0.95em; }
 
-/* =========================================
-   3. FORMULÁRIOS (INPUTS E SELECTS)
-   ========================================= */
 fieldset {
     border: 1px solid #ddd;
     border-radius: 5px;
@@ -87,254 +67,84 @@ legend {
     font-size: 0.9em;
 }
 
-label {
-    display: block;
-    margin-bottom: 5px;
-    color: #333;
-    font-size: 0.9em;
-    font-weight: 600;
+label { display: block; margin-bottom: 5px; color: #333; font-size: 0.9em; font-weight: 600; }
+
+input[type="text"], input[type="password"], input[type="number"], select {
+    width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc;
+    border-radius: 4px; font-size: 1em; transition: border-color 0.3s, box-shadow 0.3s;
 }
 
-input[type="text"], 
-input[type="password"], 
-input[type="number"], 
-select {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 1em;
-    transition: border-color 0.3s, box-shadow 0.3s;
+input:focus, select:focus {
+    outline: none; border-color: #0a162d; box-shadow: 0 0 5px rgba(10, 22, 45, 0.2);
 }
 
-input:focus, 
-select:focus {
-    outline: none;
-    border-color: #0a162d;
-    box-shadow: 0 0 5px rgba(10, 22, 45, 0.2);
+input:disabled, select:disabled {
+    background-color: #e9ecef; cursor: not-allowed; color: #6c757d; border-color: #ddd;
 }
 
-input:disabled,
-select:disabled {
-    background-color: #e9ecef;
-    cursor: not-allowed;
-    color: #6c757d;
-    border-color: #ddd;
-}
+.grid-livros { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+.grid-livros input { margin-bottom: 0; }
 
-.grid-livros {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-}
-
-.grid-livros input {
-    margin-bottom: 0;
-}
-
-/* =========================================
-   4. BOTÕES (AÇÕES)
-   ========================================= */
 button {
-    width: 100%;
-    padding: 12px;
-    background-color: #0099ff; 
-    color: white;
-    border: none;
-    border-radius: 4px;
-    font-size: 1.1em;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    font-weight: bold;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+    width: 100%; padding: 12px; background-color: #0099ff; color: white; border: none;
+    border-radius: 4px; font-size: 1.1em; cursor: pointer; transition: background-color 0.3s;
+    font-weight: bold; text-transform: uppercase; letter-spacing: 1px;
 }
 
-button:hover {
-    background-color: #007acc;
-}
+button:hover { background-color: #007acc; }
 
-.btn-secundario { 
-    background-color: #0a162d; 
-    margin-bottom: 10px; 
-}
+.btn-secundario { background-color: #0a162d; margin-bottom: 10px; }
+.btn-secundario:hover { background-color: #1a2c52; }
 
-.btn-secundario:hover { 
-    background-color: #1a2c52; 
-}
-
-/* =========================================
-   5. MODAL E PAINEL DE EDIÇÃO DIRETA
-   ========================================= */
 .modal {
-    display: none; 
-    position: fixed; 
-    z-index: 1000; 
-    left: 0; 
-    top: 0; 
-    width: 100%; 
-    height: 100%; 
-    background-color: rgba(10, 22, 45, 0.8); 
+    display: none; position: fixed; z-index: 1000; left: 0; top: 0; 
+    width: 100%; height: 100%; background-color: rgba(10, 22, 45, 0.8); 
 }
 
 .modal-content {
-    background-color: #fff; 
-    margin: 5% auto; 
-    padding: 20px; 
-    border-radius: 8px;
-    width: 90%; 
-    max-width: 700px; 
-    max-height: 80vh; 
-    overflow-y: auto; 
-    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    background-color: #fff; margin: 5% auto; padding: 20px; border-radius: 8px;
+    width: 90%; max-width: 700px; max-height: 80vh; overflow-y: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.5);
 }
 
-.close-btn { 
-    color: #aaa; 
-    float: right; 
-    font-size: 28px; 
-    font-weight: bold; 
-    cursor: pointer; 
-    line-height: 1; 
-}
-
-.close-btn:hover { 
-    color: #0099ff; 
-}
+.close-btn { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; line-height: 1; }
+.close-btn:hover { color: #0099ff; }
 
 .registro-item {
-    border-left: 4px solid #0a162d; 
-    padding: 12px; 
-    background-color: #f4f6f9; 
-    margin-bottom: 10px; 
-    font-size: 0.9em; 
-    border-radius: 0 4px 4px 0;
+    border-left: 4px solid #0a162d; padding: 12px; background-color: #f4f6f9; 
+    margin-bottom: 10px; font-size: 0.9em; border-radius: 0 4px 4px 0;
 }
 
-.registro-header { 
-    display: flex; 
-    justify-content: space-between; 
-    align-items: flex-start; 
-    margin-bottom: 5px; 
-}
+.registro-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; }
 
-/* Botões menores de ação no painel */
 .btn-editar, .btn-salvar, .btn-cancelar {
-    border: none; 
-    padding: 5px 10px; 
-    border-radius: 4px; 
-    font-size: 0.8em; 
-    font-weight: bold; 
-    cursor: pointer; 
-    width: auto;
-    text-transform: none; 
-    letter-spacing: normal;
+    border: none; padding: 5px 10px; border-radius: 4px; font-size: 0.8em; 
+    font-weight: bold; cursor: pointer; width: auto; text-transform: none; letter-spacing: normal;
 }
-
 .btn-editar { background-color: #ffc107; color: #333; }
 .btn-editar:hover { background-color: #e0a800; }
-
 .btn-salvar { background-color: #28a745; color: white; }
 .btn-salvar:hover { background-color: #218838; }
-
 .btn-cancelar { background-color: #0099ff; color: white; margin-left: 5px; }
 .btn-cancelar:hover { background-color: #007acc; }
 
-/* Grid de campos durante a edição */
 .edit-grid {
-    display: flex; 
-    flex-wrap: wrap; 
-    gap: 10px; 
-    margin-top: 10px; 
-    padding-top: 10px; 
-    border-top: 1px dashed #ccc;
+    display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #ccc;
 }
+.edit-item { display: flex; flex-direction: column; width: 70px; }
+.edit-item label { font-size: 0.75em; color: #555; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 600; }
+.edit-item input { padding: 4px; font-size: 0.9em; margin-bottom: 0; }
 
-.edit-item { 
-    display: flex; 
-    flex-direction: column; 
-    width: 70px; 
-}
-
-.edit-item label { 
-    font-size: 0.75em; 
-    color: #555; 
-    white-space: nowrap; 
-    overflow: hidden; 
-    text-overflow: ellipsis; 
-    font-weight: 600; 
-}
-
-.edit-item input { 
-    padding: 4px; 
-    font-size: 0.9em; 
-    margin-bottom: 0; 
-}
-
-/* =========================================
-   6. EXCLUSIVO DO PAINEL ADMIN (KPIs e Tabela)
-   ========================================= */
-.kpi-container {
-    display: flex;
-    gap: 20px;
-    margin-bottom: 20px;
-}
-
+.kpi-container { display: flex; gap: 20px; margin-bottom: 20px; }
 .kpi-card {
-    flex: 1;
-    background-color: #f4f6f9;
-    border-left: 4px solid #0099ff;
-    padding: 20px;
-    border-radius: 4px;
-    font-size: 0.9em;
-    color: #555;
-    font-weight: 600;
+    flex: 1; background-color: #f4f6f9; border-left: 4px solid #0099ff;
+    padding: 20px; border-radius: 4px; font-size: 0.9em; color: #555; font-weight: 600;
 }
+.kpi-card strong { display: block; font-size: 2em; color: #0a162d; margin-top: 5px; }
 
-.kpi-card strong {
-    display: block;
-    font-size: 2em;
-    color: #0a162d;
-    margin-top: 5px;
-}
+.filter-bar { margin-bottom: 20px; display: flex; align-items: center; gap: 15px; }
+.filter-bar select { width: auto; min-width: 250px; margin-bottom: 0; }
 
-.filter-bar {
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.filter-bar select {
-    width: auto;
-    min-width: 250px;
-    margin-bottom: 0;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 10px;
-    background-color: #fff;
-}
-
-table th, table td {
-    padding: 12px 15px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
-    font-size: 0.9em;
-}
-
-table th {
-    background-color: #0a162d;
-    color: white;
-    font-weight: bold;
-    text-transform: uppercase;
-    font-size: 0.8em;
-    letter-spacing: 0.5px;
-}
-
-table tr:hover {
-    background-color: #f4f6f9;
-}
+table { width: 100%; border-collapse: collapse; margin-top: 10px; background-color: #fff; }
+table th, table td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #ddd; font-size: 0.9em; }
+table th { background-color: #0a162d; color: white; font-weight: bold; text-transform: uppercase; font-size: 0.8em; letter-spacing: 0.5px; }
+table tr:hover { background-color: #f4f6f9; }
