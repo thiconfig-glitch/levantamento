@@ -19,6 +19,12 @@ const nomesLivrosAdmin = {
     'filhoDono': 'Filho Dono', 'virgens': '10 Virgens', 'ovelha': 'Ovelha'
 };
 
+const todosOsBlocos = [
+    "BELO HORIZONTE", "BETIM", "CATEDRAL", "CONSELHEIRO LAFAIETE", "DIVINOPOLIS",
+    "ELDORADO", "GOVERNADOR VALADARES", "ITABIRA", "JUIZ DE FORA", "MONTES CLAROS",
+    "SETE LAGOAS", "TEOFILO OTONI", "UBÁ", "UBERABA", "UBERLANDIA", "VARGINHA", "VENDA NOVA"
+];
+
 let registrosGlobais = [];
 const corpoTabela = document.getElementById('corpo-tabela');
 const seletorFiltro = document.getElementById('filtro-bloco');
@@ -42,10 +48,26 @@ onSnapshot(q, (snapshot) => {
     atualizarFiltros();
     renderizarTabela(registrosGlobais);
     calcularKPIs(registrosGlobais);
+    atualizarBlocosPendentes();
 }, (error) => {
     console.error("Erro ao ler o banco:", error);
     corpoTabela.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">Erro de permissão no Firebase ou aguardando conexão...</td></tr>';
 });
+
+function atualizarBlocosPendentes() {
+    const boxPendentes = document.getElementById('box-pendentes');
+    const spanPendentes = document.getElementById('lista-pendentes');
+    
+    const blocosComRegistro = [...new Set(registrosGlobais.map(r => r.bloco))];
+    const blocosPendentes = todosOsBlocos.filter(b => !blocosComRegistro.includes(b));
+    
+    if (blocosPendentes.length === 0) {
+        boxPendentes.style.display = 'none';
+    } else {
+        boxPendentes.style.display = 'block';
+        spanPendentes.textContent = blocosPendentes.join(' | ');
+    }
+}
 
 function atualizarFiltros() {
     const blocosUnicos = [...new Set(registrosGlobais.map(r => r.bloco))];
