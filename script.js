@@ -368,13 +368,6 @@ document.getElementById('form-livros').addEventListener('submit', async (e) => {
         totalLivros += qtd;
     }
 
-    if (totalLivros === 0) {
-        alert("Necessitas de designar pelo menos 1 livro antes de enviar.");
-        btnSubmit.disabled = false;
-        btnSubmit.textContent = "Designar Quantidades";
-        return;
-    }
-
     try {
         const docId = `${blocoAtivo}_${seletorRegiao.value}_${seletorIgreja.value}`.replace(/[\s\/]+/g, '_');
         await setDoc(doc(db, "distribuicoes", docId), {
