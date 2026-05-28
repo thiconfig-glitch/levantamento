@@ -48,6 +48,18 @@ const limitesBlocos = {
 let registrosGlobais = [];
 const corpoTabela = document.getElementById('corpo-tabela');
 const seletorFiltro = document.getElementById('filtro-bloco');
+const seletorLivroExport = document.getElementById('filtro-livro-export');
+
+// Popular seletor de livros para exportação
+function popularSeletorLivros() {
+    Object.entries(nomesLivrosAdmin).forEach(([chave, nome]) => {
+        const option = document.createElement('option');
+        option.value = chave;
+        option.textContent = nome;
+        seletorLivroExport.appendChild(option);
+    });
+}
+popularSeletorLivros();
 
 const q = query(collection(db, "distribuicoes"), orderBy("timestamp", "desc"));
 
@@ -175,10 +187,12 @@ seletorFiltro.addEventListener('change', (e) => {
 
 document.getElementById('btn-exportar').addEventListener('click', () => {
     const blocoSelecionado = seletorFiltro.value;
-    let dadosParaExportar = registrosGlobais;
+    const livroSelecionado = seletorLivroExport.value;
+    
+    let dadosParaExportar = [...registrosGlobais];
     
     if (blocoSelecionado !== "TODOS") {
-        dadosParaExportar = registrosGlobais.filter(r => r.bloco === blocoSelecionado);
+        dadosParaExportar = dadosParaExportar.filter(r => r.bloco === blocoSelecionado);
     }
 
     if (dadosParaExportar.length === 0) {
@@ -186,31 +200,80 @@ document.getElementById('btn-exportar').addEventListener('click', () => {
         return;
     }
 
-    const chavesLivros = Object.keys(nomesLivrosAdmin);
-    const cabecalhoLivros = chavesLivros.map(chave => nomesLivrosAdmin[chave]).join(';');
+    // Ordenar por bloco para garantir o agrupamento no relatório
+    dadosParaExportar.sort((a, b) => a.bloco.localeCompare(b.bloco));
+
+    const dataAtual = new Date().toLocaleDateString('pt-BR');
+    const nomeLivroExport = livroSelecionado === "TODOS" ? "Todos os Livros" : nomesLivrosAdmin[livroSelecionado];
     
-    let csvContent = "Data/Hora;Bloco;Regiao;Cenaculo;" + cabecalhoLivros + "\n";
+    let relatorio = `RELATÓRIO DE DISTRIBUIÇÃO - ${nomeLivroExport.toUpperCase()}\n`;
+    relatorio += `Gerado em: ${dataAtual}\n`;
+    relatorio += `Filtro de Bloco: ${blocoSelecionado}\n`;
+    relatorio += `--------------------------------------------------\n\n`;
+
+    let blocoAtual = "";
+    let totalBloco = 0;
+    let totalGeral = 0;
+    let encontrouRegistros = false;
 
     dadosParaExportar.forEach(reg => {
-        const dataFormatada = reg.timestamp.toLocaleString('pt-BR');
-        let linha = `"${dataFormatada}";"${reg.bloco}";"${reg.regiao}";"${reg.igreja}"`;
-        
-        chavesLivros.forEach(chave => {
-            const qtd = reg.livros && reg.livros[chave] ? reg.livros[chave] : 0;
-            linha += `;${qtd}`;
-        });
-        
-        csvContent += linha + "\n";
+        // Se for um livro específico, filtrar registros que tem esse livro > 0
+        const qtdLivro = livroSelecionado === "TODOS" ? null : (reg.livros[livroSelecionado] || 0);
+        if (livroSelecionado !== "TODOS" && qtdLivro === 0) return;
+
+        encontrouRegistros = true;
+
+        if (reg.bloco !== blocoAtual) {
+            if (blocoAtual !== "") {
+                relatorio += `TOTAL DO BLOCO ${blocoAtual}: ${totalBloco}\n\n`;
+            }
+            blocoAtual = reg.bloco;
+            relatorio += `BLOCO: ${blocoAtual}\n`;
+            relatorio += `==================================================\n`;
+            totalBloco = 0;
+        }
+
+        let infoLivros = "";
+        if (livroSelecionado === "TODOS") {
+            infoLivros = Object.entries(reg.livros)
+                .filter(([_, qtd]) => qtd > 0)
+                .map(([chave, qtd]) => `${nomesLivrosAdmin[chave]}: ${qtd}`)
+                .join(' | ');
+            const somaReg = Object.values(reg.livros).reduce((a, b) => a + b, 0);
+            totalBloco += somaReg;
+            totalGeral += somaReg;
+        } else {
+            infoLivros = `${nomeLivroExport}: ${qtdLivro}`;
+            totalBloco += qtdLivro;
+            totalGeral += qtdLivro;
+        }
+
+        relatorio += `Região: ${reg.regiao} | Cenáculo: ${reg.igreja}\n`;
+        relatorio += `Designado: ${infoLivros}\n`;
+        relatorio += `--------------------------------------------------\n`;
     });
 
-    const bom = "\uFEFF";
-    const blob = new Blob([bom + csvContent], { type: 'text/csv;charset=utf-8;' });
+    if (!encontrouRegistros) {
+        alert("Nenhum registro encontrado para o livro selecionado neste filtro.");
+        return;
+    }
+
+    if (blocoAtual !== "") {
+        relatorio += `TOTAL DO BLOCO ${blocoAtual}: ${totalBloco}\n\n`;
+    }
+
+    relatorio += `==================================================\n`;
+    relatorio += `TOTAL GERAL DESIGNADO: ${totalGeral}\n`;
+    relatorio += `==================================================\n`;
+
+    const blob = new Blob([relatorio], { type: 'text/plain;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     
     const a = document.createElement('a');
     a.href = url;
-    const dataAtual = new Date().toISOString().slice(0,10);
-    a.download = `exportacao_${blocoSelecionado !== 'TODOS' ? blocoSelecionado : 'todos'}_${dataAtual}.csv`;
+    const dataIso = new Date().toISOString().slice(0,10);
+    const labelLivro = livroSelecionado === "TODOS" ? "todos_livros" : livroSelecionado;
+    a.download = `relatorio_${blocoSelecionado.toLowerCase().replace(/ /g, '_')}_${labelLivro}_${dataIso}.txt`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);

@@ -54,12 +54,20 @@
 
         <hr>
 
-        <div class="filter-bar">
-            <label for="filtro-bloco">Filtrar por Bloco:</label>
-            <select id="filtro-bloco">
-                <option value="TODOS">Visualizar Todos os Blocos</option>
-            </select>
-            <button id="btn-exportar" style="width: auto; padding: 10px 20px; background-color: #28a745;">Exportar CSV</button>
+        <div class="filter-bar" style="display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #dee2e6; margin-bottom: 20px;">
+            <div style="flex: 1; min-width: 200px;">
+                <label for="filtro-bloco" style="display: block; margin-bottom: 5px; font-weight: bold;">Filtrar Tabela (Bloco):</label>
+                <select id="filtro-bloco" style="width: 100%;">
+                    <option value="TODOS">Visualizar Todos os Blocos</option>
+                </select>
+            </div>
+            <div style="flex: 1; min-width: 200px;">
+                <label for="filtro-livro-export" style="display: block; margin-bottom: 5px; font-weight: bold;">Livro para Exportação:</label>
+                <select id="filtro-livro-export" style="width: 100%;">
+                    <option value="TODOS">Todos os Livros</option>
+                </select>
+            </div>
+            <button id="btn-exportar" style="width: auto; padding: 10px 25px; background-color: #28a745; height: 42px;">Exportar Relatório</button>
         </div>
 
         <div style="overflow-x: auto;">
