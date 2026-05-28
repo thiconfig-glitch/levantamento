@@ -200,16 +200,14 @@ document.getElementById('btn-exportar').addEventListener('click', () => {
         return;
     }
 
-    // Ordenar por bloco para garantir o agrupamento no relatório
+    // Ordenar por bloco para garantir o agrupamento
     dadosParaExportar.sort((a, b) => a.bloco.localeCompare(b.bloco));
 
-    const dataAtual = new Date().toLocaleDateString('pt-BR');
     const nomeLivroExport = livroSelecionado === "TODOS" ? "Todos os Livros" : nomesLivrosAdmin[livroSelecionado];
     
-    let relatorio = `RELATÓRIO DE DISTRIBUIÇÃO - ${nomeLivroExport.toUpperCase()}\n`;
-    relatorio += `Gerado em: ${dataAtual}\n`;
-    relatorio += `Filtro de Bloco: ${blocoSelecionado}\n`;
-    relatorio += `--------------------------------------------------\n\n`;
+    // Cabeçalho do CSV
+    let csvContent = `RELATORIO DE DISTRIBUICAO;${nomeLivroExport.toUpperCase()}\n`;
+    csvContent += `Bloco;Regiao;Cenaculo;Designado;Quantidade\n`;
 
     let blocoAtual = "";
     let totalBloco = 0;
@@ -217,7 +215,6 @@ document.getElementById('btn-exportar').addEventListener('click', () => {
     let encontrouRegistros = false;
 
     dadosParaExportar.forEach(reg => {
-        // Se for um livro específico, filtrar registros que tem esse livro > 0
         const qtdLivro = livroSelecionado === "TODOS" ? null : (reg.livros[livroSelecionado] || 0);
         if (livroSelecionado !== "TODOS" && qtdLivro === 0) return;
 
@@ -225,32 +222,23 @@ document.getElementById('btn-exportar').addEventListener('click', () => {
 
         if (reg.bloco !== blocoAtual) {
             if (blocoAtual !== "") {
-                relatorio += `TOTAL DO BLOCO ${blocoAtual}: ${totalBloco}\n\n`;
+                csvContent += `TOTAL ${blocoAtual};;;;${totalBloco}\n\n`;
             }
             blocoAtual = reg.bloco;
-            relatorio += `BLOCO: ${blocoAtual}\n`;
-            relatorio += `==================================================\n`;
             totalBloco = 0;
         }
 
-        let infoLivros = "";
         if (livroSelecionado === "TODOS") {
-            infoLivros = Object.entries(reg.livros)
-                .filter(([_, qtd]) => qtd > 0)
-                .map(([chave, qtd]) => `${nomesLivrosAdmin[chave]}: ${qtd}`)
-                .join(' | ');
-            const somaReg = Object.values(reg.livros).reduce((a, b) => a + b, 0);
-            totalBloco += somaReg;
-            totalGeral += somaReg;
+            Object.entries(reg.livros).filter(([_, qtd]) => qtd > 0).forEach(([chave, qtd]) => {
+                csvContent += `${reg.bloco};${reg.regiao};${reg.igreja};${nomesLivrosAdmin[chave]};${qtd}\n`;
+                totalBloco += qtd;
+                totalGeral += qtd;
+            });
         } else {
-            infoLivros = `${nomeLivroExport}: ${qtdLivro}`;
+            csvContent += `${reg.bloco};${reg.regiao};${reg.igreja};${nomeLivroExport};${qtdLivro}\n`;
             totalBloco += qtdLivro;
             totalGeral += qtdLivro;
         }
-
-        relatorio += `Região: ${reg.regiao} | Cenáculo: ${reg.igreja}\n`;
-        relatorio += `Designado: ${infoLivros}\n`;
-        relatorio += `--------------------------------------------------\n`;
     });
 
     if (!encontrouRegistros) {
@@ -259,21 +247,21 @@ document.getElementById('btn-exportar').addEventListener('click', () => {
     }
 
     if (blocoAtual !== "") {
-        relatorio += `TOTAL DO BLOCO ${blocoAtual}: ${totalBloco}\n\n`;
+        csvContent += `TOTAL ${blocoAtual};;;;${totalBloco}\n`;
     }
 
-    relatorio += `==================================================\n`;
-    relatorio += `TOTAL GERAL DESIGNADO: ${totalGeral}\n`;
-    relatorio += `==================================================\n`;
+    csvContent += `\nTOTAL GERAL;;;;${totalGeral}\n`;
 
-    const blob = new Blob([relatorio], { type: 'text/plain;charset=utf-8;' });
+    // BOM para garantir que o Excel abra com acentos corretos (UTF-8)
+    const bom = "\uFEFF";
+    const blob = new Blob([bom + csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     
     const a = document.createElement('a');
     a.href = url;
     const dataIso = new Date().toISOString().slice(0,10);
     const labelLivro = livroSelecionado === "TODOS" ? "todos_livros" : livroSelecionado;
-    a.download = `relatorio_${blocoSelecionado.toLowerCase().replace(/ /g, '_')}_${labelLivro}_${dataIso}.txt`;
+    a.download = `relatorio_${blocoSelecionado.toLowerCase().replace(/ /g, '_')}_${labelLivro}_${dataIso}.csv`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
