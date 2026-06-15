@@ -351,29 +351,19 @@ function renderizarProgresso() {
     container.innerHTML = '';
 
     const progressoBlocos = todosOsBlocos.map(bloco => {
-        const hierarquia = hierarquiaIgrejas[bloco];
-        let totalIgrejas = 0;
-        if (hierarquia) {
-            Object.values(hierarquia).forEach(cenaculos => {
-                totalIgrejas += cenaculos.length;
-            });
-        }
-
         const registrosDoBloco = registrosGlobais.filter(r => r.bloco === bloco);
-        const igrejasRespondidas = new Set(registrosDoBloco.map(r => r.igreja)).size;
+        const jaEnviou = registrosDoBloco.length > 0;
         
-        const porcentagem = totalIgrejas === 0 ? 100 : Math.round((igrejasRespondidas / totalIgrejas) * 100);
-        const status = `${igrejasRespondidas} / ${totalIgrejas} Igrejas`;
+        const status = jaEnviou ? "Informações Enviadas" : "Pendente";
+        const porcentagem = jaEnviou ? 100 : 0;
 
-        return { bloco, status, porcentagem, totalIgrejas, igrejasRespondidas };
+        return { bloco, status, porcentagem, jaEnviou };
     });
 
     progressoBlocos.sort((a, b) => a.porcentagem - b.porcentagem);
 
     progressoBlocos.forEach(pb => {
-        let corStatus = '#28a745';
-        if (pb.porcentagem < 100) corStatus = '#ffc107'; 
-        if (pb.porcentagem === 0) corStatus = '#dc3545';
+        let corStatus = pb.jaEnviou ? '#28a745' : '#dc3545';
 
         container.innerHTML += `
             <tr>
@@ -383,27 +373,27 @@ function renderizarProgresso() {
                     <div style="background-color: #e9ecef; border-radius: 4px; width: 100%; height: 12px; margin-bottom: 5px; overflow: hidden;">
                         <div style="background-color: ${corStatus}; width: ${pb.porcentagem}%; height: 100%; border-radius: 4px;"></div>
                     </div>
-                    <span style="font-size: 0.85em; font-weight: bold; color: ${corStatus};">${pb.porcentagem}% Concluído</span>
+                    <span style="font-size: 0.85em; font-weight: bold; color: ${corStatus};">${pb.jaEnviou ? 'Concluído' : 'Aguardando'}</span>
                 </td>
             </tr>
         `;
     });
 
     const boxPendentes = document.getElementById('box-pendentes');
-    const blocosConcluidos = progressoBlocos.filter(pb => pb.porcentagem === 100).length;
-    const blocosPendentesNomes = progressoBlocos.filter(pb => pb.porcentagem < 100).map(pb => pb.bloco);
-    const taxaGlobal = Math.round((blocosConcluidos / todosOsBlocos.length) * 100);
+    const blocosComInfo = progressoBlocos.filter(pb => pb.jaEnviou).length;
+    const blocosPendentesNomes = progressoBlocos.filter(pb => !pb.jaEnviou).map(pb => pb.bloco);
+    const taxaGlobal = Math.round((blocosComInfo / todosOsBlocos.length) * 100);
     
-    boxPendentes.querySelector('strong').textContent = `Status Global (${taxaGlobal}% Blocos 100%):`;
+    boxPendentes.querySelector('strong').textContent = `Participação Global (${taxaGlobal}% dos Blocos):`;
     const spanPendentes = document.getElementById('lista-pendentes');
     
     if (blocosPendentesNomes.length === 0) {
-        spanPendentes.textContent = "Todos os blocos concluíram o levantamento!";
+        spanPendentes.textContent = "Todos os blocos já enviaram informações!";
         boxPendentes.style.backgroundColor = "#d4edda";
         boxPendentes.style.borderColor = "#c3e6cb";
         boxPendentes.style.color = "#155724";
     } else {
-        spanPendentes.textContent = "Aguardando conclusão: " + blocosPendentesNomes.join(' | ');
+        spanPendentes.textContent = "Aguardando envio de: " + blocosPendentesNomes.join(' | ');
         boxPendentes.style.backgroundColor = "#fff3cd";
         boxPendentes.style.borderColor = "#ffc107";
         boxPendentes.style.color = "#856404";
