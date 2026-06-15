@@ -195,17 +195,16 @@ onSnapshot(q, (snapshot) => {
     registrosGlobais = [];
     snapshot.forEach((docSnap) => {
         const data = docSnap.data();
-        // Filtro de "Reset": Só aceita registros que tenham o novo campo de redução
-        if (data.reducaoLanchinhos !== undefined) {
-            registrosGlobais.push({
-                id: docSnap.id,
-                timestamp: data.timestamp ? data.timestamp.toDate() : new Date(),
-                bloco: data.bloco,
-                regiao: data.regiao,
-                igreja: data.igreja,
-                reducaoLanchinhos: data.reducaoLanchinhos
-            });
-        }
+        // Removi o filtro de reset para que você possa ver e apagar os registros antigos
+        registrosGlobais.push({
+            id: docSnap.id,
+            timestamp: data.timestamp ? data.timestamp.toDate() : new Date(),
+            bloco: data.bloco,
+            regiao: data.regiao,
+            igreja: data.igreja,
+            reducaoLanchinhos: data.reducaoLanchinhos || 0,
+            isOld: data.reducaoLanchinhos === undefined // Marcador para sabermos se é lixo
+        });
     });
     
     atualizarFiltros();
@@ -216,6 +215,45 @@ onSnapshot(q, (snapshot) => {
 }, (error) => {
     console.error("Erro ao ler o banco:", error);
     corpoTabela.innerHTML = '<tr><td colspan="6" style="text-align:center; color:red;">Erro de permissão no Firebase ou aguardando conexão...</td></tr>';
+});
+
+// Lógica para limpar tudo
+document.getElementById('btn-limpar-tudo').addEventListener('click', async () => {
+    const total = registrosGlobais.length;
+    if (total === 0) {
+        alert("Não há registros para limpar.");
+        return;
+    }
+
+    const confirmacao1 = confirm(`ATENÇÃO: Você está prestes a apagar TODOS os ${total} registros do banco de dados.\n\nEsta ação é IRREVERSÍVEL. Deseja continuar?`);
+    
+    if (confirmacao1) {
+        const senha = prompt("Para confirmar a exclusão TOTAL, digite a palavra: RESET");
+        
+        if (senha === "RESET") {
+            const btn = document.getElementById('btn-limpar-tudo');
+            btn.disabled = true;
+            btn.textContent = "Apagando...";
+
+            try {
+                let apagados = 0;
+                for (const reg of registrosGlobais) {
+                    await deleteDoc(doc(db, "distribuicoes", reg.id));
+                    apagados++;
+                    btn.textContent = `Apagando (${apagados}/${total})...`;
+                }
+                alert("Banco de dados resetado com sucesso!");
+            } catch (error) {
+                console.error("Erro ao resetar banco:", error);
+                alert("Erro ao apagar alguns registros. Verifique o console.");
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "Limpar Todos os Registros";
+            }
+        } else {
+            alert("Senha incorreta. Operação cancelada.");
+        }
+    }
 });
 
 window.excluirRegistro = async (id) => {
@@ -233,7 +271,7 @@ function atualizarBlocosPendentes() {
     const boxPendentes = document.getElementById('box-pendentes');
     const spanPendentes = document.getElementById('lista-pendentes');
     
-    const blocosComRegistro = [...new Set(registrosGlobais.map(r => r.bloco))];
+    const blocosComRegistro = [...new Set(registrosGlobais.filter(r => !r.isOld).map(r => r.bloco))];
     const blocosPendentes = todosOsBlocos.filter(b => !blocosComRegistro.includes(b));
     
     if (blocosPendentes.length === 0) {
@@ -270,14 +308,16 @@ function renderizarTabela(dados) {
 
     dados.forEach(reg => {
         const dataFormatada = reg.timestamp.toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
+        const estiloLinha = reg.isOld ? 'style="background-color: #ffeef0; opacity: 0.7;"' : '';
+        const textoReducao = reg.isOld ? '<span style="color:#999;">Dado Antigo</span>' : reg.reducaoLanchinhos;
 
         corpoTabela.innerHTML += `
-            <tr>
+            <tr ${estiloLinha}>
                 <td>${dataFormatada}</td>
                 <td style="font-weight: bold; color: #0a162d;">${reg.bloco}</td>
                 <td>${reg.regiao}</td>
                 <td>${reg.igreja}</td>
-                <td style="font-weight: bold; color: #dc3545;">${reg.reducaoLanchinhos}</td>
+                <td style="font-weight: bold; color: #dc3545;">${textoReducao}</td>
                 <td>
                     <button onclick="excluirRegistro('${reg.id}')" style="background-color: #dc3545; padding: 5px 10px; font-size: 0.8em; text-transform: none; width: auto;">Excluir</button>
                 </td>
@@ -286,7 +326,8 @@ function renderizarTabela(dados) {
 }
 
 function calcularKPIs(dados) {
-    document.getElementById('kpi-total').textContent = dados.length;
+    const reais = dados.filter(r => !r.isOld).length;
+    document.getElementById('kpi-total').textContent = reais;
 
     if (dados.length > 0) {
         const ultimaAcao = dados[0].timestamp.toLocaleTimeString('pt-BR', { timeStyle: 'short' });
@@ -311,14 +352,15 @@ seletorFiltro.addEventListener('change', (e) => {
 document.getElementById('btn-exportar').addEventListener('click', () => {
     const blocoSelecionado = seletorFiltro.value;
     
-    let dadosParaExportar = [...registrosGlobais];
+    // Exportar apenas os novos registros
+    let dadosParaExportar = registrosGlobais.filter(r => !r.isOld);
     
     if (blocoSelecionado !== "TODOS") {
         dadosParaExportar = dadosParaExportar.filter(r => r.bloco === blocoSelecionado);
     }
 
     if (dadosParaExportar.length === 0) {
-        alert("Não há dados para exportar.");
+        alert("Não há novos dados para exportar.");
         return;
     }
 
@@ -351,7 +393,8 @@ function renderizarProgresso() {
     container.innerHTML = '';
 
     const progressoBlocos = todosOsBlocos.map(bloco => {
-        const registrosDoBloco = registrosGlobais.filter(r => r.bloco === bloco);
+        // Ignorar registros antigos no progresso
+        const registrosDoBloco = registrosGlobais.filter(r => r.bloco === bloco && !r.isOld);
         const jaEnviou = registrosDoBloco.length > 0;
         
         const status = jaEnviou ? "Informações Enviadas" : "Pendente";
