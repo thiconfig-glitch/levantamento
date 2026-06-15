@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>Controle de Livros - EBI 2026</title>
+    <title>Levantamento de Materiais - EBI 2026</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -21,13 +21,12 @@
         <h2>Levantamento de Materiais</h2>
         
         <div class="info-box">
-            <strong>Instrução Operacional:</strong> Os saldos disponíveis abaixo refletem estritamente as quantidades pré-aprovadas no levantamento feito anteriormente pelo teu bloco. O objetivo desta etapa é gerenciar a logística, <strong>distribuindo</strong> o material já garantido entre as regiões e igrejas (cenáculos).
+            <strong>Instrução Operacional:</strong> Preencha os dados solicitados abaixo para o levantamento de materiais do seu bloco.
         </div>
 
-        <button id="btn-abrir-painel" type="button" class="btn-secundario">Acompanhar Livros Designados</button>
         <hr>
 
-        <form id="form-livros">
+        <form id="form-levantamento">
             <fieldset>
                 <legend>Localidade</legend>
                 
@@ -43,56 +42,16 @@
             </fieldset>
 
             <fieldset>
-                <legend>Literatura EBI 2026</legend>
-                <div class="grid-livros">
-                    <div class="input-group">
-                        <label for="biblia">Bíblia Capa Dura <span id="saldo-biblia" class="badge"></span>:</label>
-                        <input type="number" id="biblia" min="0" value="0" required>
-                    </div>
-                    <div class="input-group">
-                        <label for="somos3">Somos 3 em Um <span id="saldo-somos3" class="badge"></span>:</label>
-                        <input type="number" id="somos3" min="0" value="0" required>
-                    </div>
-                    <div class="input-group">
-                        <label for="carater">Caráter de Deus <span id="saldo-carater" class="badge"></span>:</label>
-                        <input type="number" id="carater" min="0" value="0" required>
-                    </div>
-                    <div class="input-group">
-                        <label for="arrependimento">Arrependimento <span id="saldo-arrependimento" class="badge"></span>:</label>
-                        <input type="number" id="arrependimento" min="0" value="0" required>
-                    </div>
-                    <div class="input-group">
-                        <label for="avivamento">Avivamento <span id="saldo-avivamento" class="badge"></span>:</label>
-                        <input type="number" id="avivamento" min="0" value="0" required>
-                    </div>
-                    <div class="input-group">
-                        <label for="filho-dono">Filho do Dono <span id="saldo-filho-dono" class="badge"></span>:</label>
-                        <input type="number" id="filho-dono" min="0" value="0" required>
-                    </div>
-                    <div class="input-group">
-                        <label for="virgens">10 Virgens <span id="saldo-virgens" class="badge"></span>:</label>
-                        <input type="number" id="virgens" min="0" value="0" required>
-                    </div>
-                    <div class="input-group">
-                        <label for="ovelha">Ovelha Perdida <span id="saldo-ovelha" class="badge"></span>:</label>
-                        <input type="number" id="ovelha" min="0" value="0" required>
-                    </div>
+                <legend>Redução de Lanchinhos</legend>
+                <div class="info-box" style="background-color: #fff3cd; border-left-color: #ffc107; color: #856404;">
+                    <strong>Atenção:</strong> Informe abaixo a quantidade que deseja <strong>REDUZIR</strong> do seu pedido original de lanchinhos. Se não houver redução, deixe como 0.
                 </div>
+                <label for="reducao-lanchinhos">Quantidade a Reduzir:</label>
+                <input type="number" id="reducao-lanchinhos" min="0" value="0" required>
             </fieldset>
 
-            <button type="submit">Designar Quantidades</button>
+            <button type="submit">Enviar Levantamento</button>
         </form>
-    </div>
-
-    <div id="modal-painel" class="modal">
-        <div class="modal-content">
-            <span class="close-btn">&times;</span>
-            <h2 id="titulo-modal">Livros Designados</h2>
-            <input type="text" id="busca-igreja" placeholder="Buscar cenáculo..." style="margin-bottom: 15px;">
-            <div id="lista-registros">
-                <p>Nenhuma quantidade designada ainda.</p>
-            </div>
-        </div>
     </div>
 
     <script type="module" src="script.js"></script>

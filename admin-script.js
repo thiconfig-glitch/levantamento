@@ -13,53 +13,15 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-const nomesLivrosAdmin = {
-    'biblia': 'Bíblia', 'somos3': 'Somos 3', 'carater': 'Caráter',
-    'arrependimento': 'Arrepend.', 'avivamento': 'Avivam.',
-    'filhoDono': 'Filho Dono', 'virgens': '10 Virgens', 'ovelha': 'Ovelha'
-};
-
 const todosOsBlocos = [
     "BELO HORIZONTE", "BETIM", "CATEDRAL", "CONSELHEIRO LAFAIETE", "DIVINOPOLIS",
     "ELDORADO", "GOVERNADOR VALADARES", "ITABIRA", "JUIZ DE FORA", "MONTES CLAROS",
     "SETE LAGOAS", "TEOFILO OTONI", "UBÁ", "UBERABA", "UBERLANDIA", "VARGINHA", "VENDA NOVA"
 ];
 
-const limitesBlocos = {
-    "BELO HORIZONTE": { "biblia": 95, "somos3": 22, "carater": 14, "arrependimento": 18, "avivamento": 11, "filhoDono": 25, "virgens": 16, "ovelha": 20 },
-    "BETIM": { "biblia": 50, "somos3": 0, "carater": 5, "arrependimento": 0, "avivamento": 0, "filhoDono": 40, "virgens": 0, "ovelha": 1 },
-    "CATEDRAL": { "biblia": 26, "somos3": 55, "carater": 38, "arrependimento": 18, "avivamento": 23, "filhoDono": 8, "virgens": 55, "ovelha": 53 },
-    "CONSELHEIRO LAFAIETE": { "biblia": 11, "somos3": 0, "carater": 0, "arrependimento": 0, "avivamento": 0, "filhoDono": 0, "virgens": 0, "ovelha": 0 },
-    "DIVINOPOLIS": { "biblia": 0, "somos3": 0, "carater": 0, "arrependimento": 0, "avivamento": 0, "filhoDono": 0, "virgens": 0, "ovelha": 0 },
-    "ELDORADO": { "biblia": 19, "somos3": 1, "carater": 0, "arrependimento": 0, "avivamento": 0, "filhoDono": 2, "virgens": 0, "ovelha": 0 },
-    "GOVERNADOR VALADARES": { "biblia": 27, "somos3": 6, "carater": 7, "arrependimento": 7, "avivamento": 6, "filhoDono": 7, "virgens": 6, "ovelha": 6 },
-    "ITABIRA": { "biblia": 15, "somos3": 0, "carater": 0, "arrependimento": 0, "avivamento": 0, "filhoDono": 0, "virgens": 0, "ovelha": 0 },
-    "JUIZ DE FORA": { "biblia": 23, "somos3": 5, "carater": 4, "arrependimento": 4, "avivamento": 3, "filhoDono": 4, "virgens": 7, "ovelha": 5 },
-    "MONTES CLAROS": { "biblia": 43, "somos3": 0, "carater": 0, "arrependimento": 0, "avivamento": 0, "filhoDono": 0, "virgens": 0, "ovelha": 0 },
-    "SETE LAGOAS": { "biblia": 30, "somos3": 2, "carater": 2, "arrependimento": 2, "avivamento": 2, "filhoDono": 4, "virgens": 3, "ovelha": 2 },
-    "TEOFILO OTONI": { "biblia": 36, "somos3": 4, "carater": 4, "arrependimento": 4, "avivamento": 4, "filhoDono": 4, "virgens": 4, "ovelha": 4 },
-    "UBÁ": { "biblia": 15, "somos3": 0, "carater": 0, "arrependimento": 0, "avivamento": 0, "filhoDono": 0, "virgens": 0, "ovelha": 0 },
-    "UBERABA": { "biblia": 7, "somos3": 2, "carater": 7, "arrependimento": 2, "avivamento": 2, "filhoDono": 2, "virgens": 2, "ovelha": 2 },
-    "UBERLANDIA": { "biblia": 144, "somos3": 17, "carater": 24, "arrependimento": 20, "avivamento": 18, "filhoDono": 19, "virgens": 21, "ovelha": 21 },
-    "VARGINHA": { "biblia": 42, "somos3": 40, "carater": 52, "arrependimento": 40, "avivamento": 45, "filhoDono": 41, "virgens": 43, "ovelha": 44 },
-    "VENDA NOVA": { "biblia": 67, "somos3": 46, "carater": 43, "arrependimento": 35, "avivamento": 36, "filhoDono": 44, "virgens": 43, "ovelha": 42 }
-};
-
 let registrosGlobais = [];
 const corpoTabela = document.getElementById('corpo-tabela');
 const seletorFiltro = document.getElementById('filtro-bloco');
-const seletorLivroExport = document.getElementById('filtro-livro-export');
-
-// Popular seletor de livros para exportação
-function popularSeletorLivros() {
-    Object.entries(nomesLivrosAdmin).forEach(([chave, nome]) => {
-        const option = document.createElement('option');
-        option.value = chave;
-        option.textContent = nome;
-        seletorLivroExport.appendChild(option);
-    });
-}
-popularSeletorLivros();
 
 const q = query(collection(db, "distribuicoes"), orderBy("timestamp", "desc"));
 
@@ -73,7 +35,7 @@ onSnapshot(q, (snapshot) => {
             bloco: data.bloco,
             regiao: data.regiao,
             igreja: data.igreja,
-            livros: data.livros
+            reducaoLanchinhos: data.reducaoLanchinhos || 0
         });
     });
     
@@ -139,9 +101,6 @@ function renderizarTabela(dados) {
 
     dados.forEach(reg => {
         const dataFormatada = reg.timestamp.toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
-        const stringLivros = Object.entries(reg.livros)
-            .filter(([_, qtd]) => qtd > 0)
-            .map(([chave, qtd]) => `<strong>${nomesLivrosAdmin[chave]}:</strong> ${qtd}`).join(' | ');
 
         corpoTabela.innerHTML += `
             <tr>
@@ -149,7 +108,7 @@ function renderizarTabela(dados) {
                 <td style="font-weight: bold; color: #0a162d;">${reg.bloco}</td>
                 <td>${reg.regiao}</td>
                 <td>${reg.igreja}</td>
-                <td>${stringLivros}</td>
+                <td style="font-weight: bold; color: #dc3545;">${reg.reducaoLanchinhos}</td>
                 <td>
                     <button onclick="excluirRegistro('${reg.id}')" style="background-color: #dc3545; padding: 5px 10px; font-size: 0.8em; text-transform: none; width: auto;">Excluir</button>
                 </td>
@@ -158,12 +117,7 @@ function renderizarTabela(dados) {
 }
 
 function calcularKPIs(dados) {
-    let totalLivros = 0;
-    dados.forEach(reg => {
-        totalLivros += Object.values(reg.livros).reduce((soma, qtd) => soma + qtd, 0);
-    });
-
-    document.getElementById('kpi-total').textContent = totalLivros;
+    document.getElementById('kpi-total').textContent = dados.length;
 
     if (dados.length > 0) {
         const ultimaAcao = dados[0].timestamp.toLocaleTimeString('pt-BR', { timeStyle: 'short' });
@@ -187,7 +141,6 @@ seletorFiltro.addEventListener('change', (e) => {
 
 document.getElementById('btn-exportar').addEventListener('click', () => {
     const blocoSelecionado = seletorFiltro.value;
-    const livroSelecionado = seletorLivroExport.value;
     
     let dadosParaExportar = [...registrosGlobais];
     
@@ -200,59 +153,16 @@ document.getElementById('btn-exportar').addEventListener('click', () => {
         return;
     }
 
-    // Ordenar por bloco para garantir o agrupamento
     dadosParaExportar.sort((a, b) => a.bloco.localeCompare(b.bloco));
 
-    const nomeLivroExport = livroSelecionado === "TODOS" ? "Todos os Livros" : nomesLivrosAdmin[livroSelecionado];
-    
-    // Cabeçalho do CSV
-    let csvContent = `RELATORIO DE DISTRIBUICAO;${nomeLivroExport.toUpperCase()}\n`;
-    csvContent += `Bloco;Regiao;Cenaculo;Designado;Quantidade\n`;
-
-    let blocoAtual = "";
-    let totalBloco = 0;
-    let totalGeral = 0;
-    let encontrouRegistros = false;
+    let csvContent = `RELATORIO DE REDUCAO DE LANCHINHOS\n`;
+    csvContent += `Data;Bloco;Regiao;Cenaculo;Reducao\n`;
 
     dadosParaExportar.forEach(reg => {
-        const qtdLivro = livroSelecionado === "TODOS" ? null : (reg.livros[livroSelecionado] || 0);
-        if (livroSelecionado !== "TODOS" && qtdLivro === 0) return;
-
-        encontrouRegistros = true;
-
-        if (reg.bloco !== blocoAtual) {
-            if (blocoAtual !== "") {
-                csvContent += `TOTAL ${blocoAtual};;;;${totalBloco}\n\n`;
-            }
-            blocoAtual = reg.bloco;
-            totalBloco = 0;
-        }
-
-        if (livroSelecionado === "TODOS") {
-            Object.entries(reg.livros).filter(([_, qtd]) => qtd > 0).forEach(([chave, qtd]) => {
-                csvContent += `${reg.bloco};${reg.regiao};${reg.igreja};${nomesLivrosAdmin[chave]};${qtd}\n`;
-                totalBloco += qtd;
-                totalGeral += qtd;
-            });
-        } else {
-            csvContent += `${reg.bloco};${reg.regiao};${reg.igreja};${nomeLivroExport};${qtdLivro}\n`;
-            totalBloco += qtdLivro;
-            totalGeral += qtdLivro;
-        }
+        const dataFormatada = reg.timestamp.toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }).replace(',', '');
+        csvContent += `${dataFormatada};${reg.bloco};${reg.regiao};${reg.igreja};${reg.reducaoLanchinhos}\n`;
     });
 
-    if (!encontrouRegistros) {
-        alert("Nenhum registro encontrado para o livro selecionado neste filtro.");
-        return;
-    }
-
-    if (blocoAtual !== "") {
-        csvContent += `TOTAL ${blocoAtual};;;;${totalBloco}\n`;
-    }
-
-    csvContent += `\nTOTAL GERAL;;;;${totalGeral}\n`;
-
-    // BOM para garantir que o Excel abra com acentos corretos (UTF-8)
     const bom = "\uFEFF";
     const blob = new Blob([bom + csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
@@ -260,8 +170,7 @@ document.getElementById('btn-exportar').addEventListener('click', () => {
     const a = document.createElement('a');
     a.href = url;
     const dataIso = new Date().toISOString().slice(0,10);
-    const labelLivro = livroSelecionado === "TODOS" ? "todos_livros" : livroSelecionado;
-    a.download = `relatorio_${blocoSelecionado.toLowerCase().replace(/ /g, '_')}_${labelLivro}_${dataIso}.csv`;
+    a.download = `relatorio_${blocoSelecionado.toLowerCase().replace(/ /g, '_')}_${dataIso}.csv`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -273,70 +182,35 @@ function renderizarProgresso() {
     container.innerHTML = '';
 
     const progressoBlocos = todosOsBlocos.map(bloco => {
-        const limites = limitesBlocos[bloco];
-        if (!limites) return null;
-
-        const limiteTotal = Object.values(limites).reduce((a, b) => a + b, 0);
-
         const registrosDoBloco = registrosGlobais.filter(r => r.bloco === bloco);
-        let designadoTotal = 0;
-        registrosDoBloco.forEach(reg => {
-            for (const key in reg.livros) {
-                designadoTotal += (reg.livros[key] || 0);
-            }
-        });
+        const status = registrosDoBloco.length > 0 ? "Enviado" : "Pendente";
+        const porcentagem = registrosDoBloco.length > 0 ? 100 : 0;
 
-        const pendente = limiteTotal - designadoTotal;
-        const porcentagem = limiteTotal === 0 ? 100 : Math.max(0, Math.min(100, Math.round((designadoTotal / limiteTotal) * 100)));
-
-        let detalhesFalta = [];
-        for (const chave in limites) {
-            let gastoLivro = 0;
-            registrosDoBloco.forEach(reg => {
-                const dbKey = chave === 'filho-dono' ? 'filhoDono' : chave;
-                gastoLivro += (reg.livros[dbKey] || 0);
-            });
-            const faltaLivro = limites[chave] - gastoLivro;
-            if (faltaLivro > 0) {
-                detalhesFalta.push(`<strong>${nomesLivrosAdmin[chave] || chave}:</strong> ${faltaLivro}`);
-            }
-        }
-        const stringDetalhes = detalhesFalta.length > 0 ? detalhesFalta.join(' | ') : '<span style="color:#28a745;">Tudo designado</span>';
-
-        return { bloco, limiteTotal, designadoTotal, pendente, porcentagem, stringDetalhes };
-    }).filter(b => b !== null);
+        return { bloco, status, porcentagem };
+    });
 
     progressoBlocos.sort((a, b) => a.porcentagem - b.porcentagem);
 
-    let totalGeral = 0;
-    let pendenteGeral = 0;
-
     progressoBlocos.forEach(pb => {
-        totalGeral += pb.limiteTotal;
-        pendenteGeral += pb.pendente;
-
-        let corStatus = '#28a745';
-        if (pb.porcentagem < 100) corStatus = '#ffc107'; 
-        if (pb.porcentagem === 0) corStatus = '#dc3545';
+        let corStatus = pb.porcentagem === 100 ? '#28a745' : '#dc3545';
 
         container.innerHTML += `
             <tr>
                 <td style="font-weight: bold; color: #0a162d;">${pb.bloco}</td>
-                <td>${pb.limiteTotal}</td>
-                <td>${pb.designadoTotal}</td>
-                <td style="color: ${pb.pendente > 0 ? '#dc3545' : '#28a745'}; font-weight: bold;">${pb.pendente}</td>
-                <td style="font-size: 0.85em;">${pb.stringDetalhes}</td>
+                <td style="color: ${corStatus}; font-weight: bold;">${pb.status}</td>
                 <td style="min-width: 150px;">
                     <div style="background-color: #e9ecef; border-radius: 4px; width: 100%; height: 12px; margin-bottom: 5px; overflow: hidden;">
                         <div style="background-color: ${corStatus}; width: ${pb.porcentagem}%; height: 100%; border-radius: 4px;"></div>
                     </div>
-                    <span style="font-size: 0.85em; font-weight: bold; color: ${corStatus};">${pb.porcentagem}% Concluído</span>
+                    <span style="font-size: 0.85em; font-weight: bold; color: ${corStatus};">${pb.porcentagem}%</span>
                 </td>
             </tr>
         `;
     });
 
     const boxPendentes = document.getElementById('box-pendentes');
-    const taxaGlobal = totalGeral > 0 ? Math.round(((totalGeral - pendenteGeral) / totalGeral) * 100) : 100;
+    const blocosEnviados = progressoBlocos.filter(pb => pb.porcentagem === 100).length;
+    const taxaGlobal = Math.round((blocosEnviados / todosOsBlocos.length) * 100);
     boxPendentes.querySelector('strong').textContent = `Blocos Pendentes (${taxaGlobal}% Global):`;
 }
+

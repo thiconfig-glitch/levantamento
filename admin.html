@@ -16,7 +16,7 @@
         
         <div class="kpi-container">
             <div class="kpi-card">
-                Total de Livros Designados
+                Total de Registros
                 <strong id="kpi-total">0</strong>
             </div>
             <div class="kpi-card">
@@ -36,16 +36,13 @@
                     <thead>
                         <tr>
                             <th>Bloco</th>
-                            <th>Limite Total</th>
-                            <th>Já Designado</th>
-                            <th>Falta Designar</th>
-                            <th>Detalhes do Saldo (Falta)</th>
+                            <th>Status</th>
                             <th>Progresso (%)</th>
                         </tr>
                     </thead>
                     <tbody id="corpo-tabela-progresso">
                         <tr>
-                            <td colspan="6" style="text-align: center; color: #666;">Calculando progresso...</td>
+                            <td colspan="3" style="text-align: center; color: #666;">Calculando progresso...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -61,12 +58,6 @@
                     <option value="TODOS">Visualizar Todos os Blocos</option>
                 </select>
             </div>
-            <div style="flex: 1; min-width: 200px;">
-                <label for="filtro-livro-export" style="display: block; margin-bottom: 5px; font-weight: bold;">Livro para Exportação:</label>
-                <select id="filtro-livro-export" style="width: 100%;">
-                    <option value="TODOS">Todos os Livros</option>
-                </select>
-            </div>
             <button id="btn-exportar" style="width: auto; padding: 10px 25px; background-color: #28a745; height: 42px;">Exportar Relatório</button>
         </div>
 
@@ -78,7 +69,7 @@
                         <th>Bloco</th>
                         <th>Região</th>
                         <th>Cenáculo</th>
-                        <th>Livros Designados</th>
+                        <th>Redução Lanchinhos</th>
                         <th>Ações</th>
                     </tr>
                 </thead>

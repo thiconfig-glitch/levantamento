@@ -182,26 +182,6 @@ const hierarquiaIgrejas = {
     }
 };
 
-const limitesBlocos = {
-    "BELO HORIZONTE": { "biblia": 95, "somos3": 22, "carater": 14, "arrependimento": 18, "avivamento": 11, "filhoDono": 25, "virgens": 16, "ovelha": 20 },
-    "BETIM": { "biblia": 50, "somos3": 0, "carater": 5, "arrependimento": 0, "avivamento": 0, "filhoDono": 40, "virgens": 0, "ovelha": 1 },
-    "CATEDRAL": { "biblia": 26, "somos3": 55, "carater": 38, "arrependimento": 18, "avivamento": 23, "filhoDono": 8, "virgens": 55, "ovelha": 53 },
-    "CONSELHEIRO LAFAIETE": { "biblia": 11, "somos3": 0, "carater": 0, "arrependimento": 0, "avivamento": 0, "filhoDono": 0, "virgens": 0, "ovelha": 0 },
-    "DIVINOPOLIS": { "biblia": 0, "somos3": 0, "carater": 0, "arrependimento": 0, "avivamento": 0, "filhoDono": 0, "virgens": 0, "ovelha": 0 },
-    "ELDORADO": { "biblia": 19, "somos3": 1, "carater": 0, "arrependimento": 0, "avivamento": 0, "filhoDono": 2, "virgens": 0, "ovelha": 0 },
-    "GOVERNADOR VALADARES": { "biblia": 27, "somos3": 6, "carater": 7, "arrependimento": 7, "avivamento": 6, "filhoDono": 7, "virgens": 6, "ovelha": 6 },
-    "ITABIRA": { "biblia": 15, "somos3": 0, "carater": 0, "arrependimento": 0, "avivamento": 0, "filhoDono": 0, "virgens": 0, "ovelha": 0 },
-    "JUIZ DE FORA": { "biblia": 23, "somos3": 5, "carater": 4, "arrependimento": 4, "avivamento": 3, "filhoDono": 4, "virgens": 7, "ovelha": 5 },
-    "MONTES CLAROS": { "biblia": 43, "somos3": 0, "carater": 0, "arrependimento": 0, "avivamento": 0, "filhoDono": 0, "virgens": 0, "ovelha": 0 },
-    "SETE LAGOAS": { "biblia": 30, "somos3": 2, "carater": 2, "arrependimento": 2, "avivamento": 2, "filhoDono": 4, "virgens": 3, "ovelha": 2 },
-    "TEOFILO OTONI": { "biblia": 36, "somos3": 4, "carater": 4, "arrependimento": 4, "avivamento": 4, "filhoDono": 4, "virgens": 4, "ovelha": 4 },
-    "UBÁ": { "biblia": 15, "somos3": 0, "carater": 0, "arrependimento": 0, "avivamento": 0, "filhoDono": 0, "virgens": 0, "ovelha": 0 },
-    "UBERABA": { "biblia": 7, "somos3": 2, "carater": 7, "arrependimento": 2, "avivamento": 2, "filhoDono": 2, "virgens": 2, "ovelha": 2 },
-    "UBERLANDIA": { "biblia": 144, "somos3": 17, "carater": 24, "arrependimento": 20, "avivamento": 18, "filhoDono": 19, "virgens": 21, "ovelha": 21 },
-    "VARGINHA": { "biblia": 42, "somos3": 40, "carater": 52, "arrependimento": 40, "avivamento": 45, "filhoDono": 41, "virgens": 43, "ovelha": 44 },
-    "VENDA NOVA": { "biblia": 67, "somos3": 46, "carater": 43, "arrependimento": 35, "avivamento": 36, "filhoDono": 44, "virgens": 43, "ovelha": 42 }
-};
-
 const dicionarioAcessos = {
     "VENDANOVA": "VENDA NOVA",
     "MONTESCLAROS": "MONTES CLAROS",
@@ -222,22 +202,8 @@ const dicionarioAcessos = {
     "CATEDRAL": "CATEDRAL"
 };
 
-const nomesLivros = {
-    'biblia': 'Bíblia', 'somos3': 'Somos 3', 'carater': 'Caráter',
-    'arrependimento': 'Arrepend.', 'avivamento': 'Avivam.',
-    'filhoDono': 'Filho Dono', 'virgens': '10 Virgens', 'ovelha': 'Ovelha'
-};
-
 let blocoAtivo = null;
-let saldosAtuais = {};
 let registrosDesignados = []; 
-let editandoIndex = -1; 
-
-const mapeamentoCampos = {
-    'biblia': 'saldo-biblia', 'somos3': 'saldo-somos3', 'carater': 'saldo-carater',
-    'arrependimento': 'saldo-arrependimento', 'avivamento': 'saldo-avivamento',
-    'filho-dono': 'saldo-filho-dono', 'virgens': 'saldo-virgens', 'ovelha': 'saldo-ovelha'
-};
 
 document.getElementById('btn-entrar').addEventListener('click', async (e) => {
     e.preventDefault();
@@ -256,7 +222,6 @@ document.getElementById('btn-entrar').addEventListener('click', async (e) => {
         btnEntrar.textContent = "Carregando...";
 
         try {
-            saldosAtuais = { ...limitesBlocos[blocoAtivo] }; 
             registrosDesignados = [];
 
             const q = query(collection(db, "distribuicoes"), where("bloco", "==", blocoAtivo));
@@ -267,23 +232,14 @@ document.getElementById('btn-entrar').addEventListener('click', async (e) => {
                 registrosDesignados.push({
                     regiao: data.regiao,
                     igreja: data.igreja,
-                    livros: data.livros,
                     docId: docSnap.id
                 });
-                
-                for (const chave in data.livros) {
-                    if (saldosAtuais[chave] !== undefined) {
-                        saldosAtuais[chave] -= data.livros[chave];
-                    }
-                }
             });
 
             document.getElementById('login-section').style.display = 'none';
             document.getElementById('form-section').style.display = 'block';
-            document.getElementById('titulo-modal').textContent = `Livros Designados (${blocoAtivo})`;
 
             carregarRegioes(blocoAtivo);
-            aplicarTravasIniciais();
         } catch (error) {
             console.error("Erro ao carregar dados:", error);
             alert("Erro ao conectar com o banco de dados.");
@@ -315,58 +271,19 @@ seletorRegiao.addEventListener('change', (e) => {
     }
 });
 
-function aplicarTravasIniciais() {
-    for (const [idInput, idSpan] of Object.entries(mapeamentoCampos)) {
-        const chaveObjeto = idInput === 'filho-dono' ? 'filhoDono' : idInput;
-        const saldo = saldosAtuais[chaveObjeto];
-        const inputElement = document.getElementById(idInput);
-        
-        document.getElementById(idSpan).textContent = `(Restam: ${saldo})`;
-        inputElement.max = saldo;
-        inputElement.value = 0; 
-        inputElement.disabled = (saldo === 0);
-
-        const novoElemento = inputElement.cloneNode(true);
-        inputElement.parentNode.replaceChild(novoElemento, inputElement);
-        
-        novoElemento.addEventListener('input', (e) => {
-            let digitado = parseInt(e.target.value) || 0;
-            if (digitado > saldosAtuais[chaveObjeto]) {
-                digitado = saldosAtuais[chaveObjeto];
-                e.target.value = digitado;
-            }
-            if (digitado < 0) {
-                digitado = 0;
-                e.target.value = 0;
-            }
-            const novoResto = saldosAtuais[chaveObjeto] - digitado;
-            document.getElementById(idSpan).textContent = `(Restam: ${novoResto})`;
-        });
-    }
-}
-
-document.getElementById('form-livros').addEventListener('submit', async (e) => {
+document.getElementById('form-levantamento').addEventListener('submit', async (e) => {
     e.preventDefault();
     const btnSubmit = document.querySelector('button[type="submit"]');
+    const valorReducao = parseInt(document.getElementById('reducao-lanchinhos').value) || 0;
 
     const jaExiste = registrosDesignados.some(r => r.igreja === seletorIgreja.value && r.regiao === seletorRegiao.value);
     if (jaExiste) {
-        alert("Esta igreja já recebeu livros. Use o botão 'Acompanhar Livros Designados' para editar a quantidade em vez de enviar de novo.");
+        alert("Este cenáculo já possui um levantamento enviado.");
         return;
     }
 
-    const valoresEnviados = {};
-    let totalLivros = 0;
-    
     btnSubmit.disabled = true;
-    btnSubmit.textContent = "A gravar...";
-
-    for (const idInput of Object.keys(mapeamentoCampos)) {
-        const chaveObjeto = idInput === 'filho-dono' ? 'filhoDono' : idInput;
-        const qtd = parseInt(document.getElementById(idInput).value) || 0;
-        valoresEnviados[chaveObjeto] = qtd;
-        totalLivros += qtd;
-    }
+    btnSubmit.textContent = "Enviando...";
 
     try {
         const docId = `${blocoAtivo}_${seletorRegiao.value}_${seletorIgreja.value}`.replace(/[\s\/]+/g, '_');
@@ -374,163 +291,26 @@ document.getElementById('form-livros').addEventListener('submit', async (e) => {
             bloco: blocoAtivo,
             regiao: seletorRegiao.value,
             igreja: seletorIgreja.value,
-            livros: valoresEnviados,
+            reducaoLanchinhos: valorReducao,
             timestamp: serverTimestamp()
         });
 
         registrosDesignados.push({
             regiao: seletorRegiao.value, 
             igreja: seletorIgreja.value, 
-            livros: valoresEnviados,
             docId: docId
         });
 
-        for (const chave in valoresEnviados) saldosAtuais[chave] -= valoresEnviados[chave];
-
         seletorIgreja.innerHTML = '<option value="">Selecione primeiro a região...</option>';
         seletorIgreja.disabled = true;
-        document.getElementById('form-livros').reset();
-        aplicarTravasIniciais(); 
+        document.getElementById('form-levantamento').reset();
+        alert("Levantamento de redução enviado com sucesso!");
     } catch (error) {
         console.error("Erro ao gravar: ", error);
         alert("Falha na comunicação com o servidor.");
     } finally {
         btnSubmit.disabled = false;
-        btnSubmit.textContent = "Designar Quantidades";
+        btnSubmit.textContent = "Enviar Levantamento";
     }
 });
 
-const modal = document.getElementById('modal-painel');
-const btnAbrir = document.getElementById('btn-abrir-painel');
-const btnFechar = document.querySelector('.close-btn');
-
-btnAbrir.onclick = () => {
-    editandoIndex = -1; 
-    renderizarPainel();
-    modal.style.display = 'block';
-}
-
-const buscaIgreja = document.getElementById('busca-igreja');
-buscaIgreja.addEventListener('input', (e) => {
-    renderizarPainel(e.target.value.toLowerCase());
-});
-
-function renderizarPainel(filtro = '') {
-    const lista = document.getElementById('lista-registros');
-    lista.innerHTML = '';
-
-    if (registrosDesignados.length === 0) {
-        lista.innerHTML = '<p>Nenhuma quantidade designada ainda.</p>';
-        return;
-    }
-
-    let encontrouAlgum = false;
-
-    registrosDesignados.forEach((reg, index) => {
-        if (filtro && !reg.igreja.toLowerCase().includes(filtro) && !reg.regiao.toLowerCase().includes(filtro)) return;
-        encontrouAlgum = true;
-        
-        if (index === editandoIndex) {
-            let inputsHTML = '';
-            for (const chave in reg.livros) {
-                const limiteMaximo = saldosAtuais[chave] + reg.livros[chave];
-                if (limiteMaximo > 0) {
-                    inputsHTML += `
-                    <div class="edit-item">
-                        <label title="${nomesLivros[chave]}">${nomesLivros[chave]}</label>
-                        <input type="number" id="edit-${chave}" value="${reg.livros[chave]}" min="0" max="${limiteMaximo}">
-                    </div>`;
-                }
-            }
-
-            lista.innerHTML += `
-            <div class="registro-item" style="border-left-color: #ffc107;">
-                <div class="registro-header">
-                    <div><strong>Região:</strong> ${reg.regiao} | <strong>Cenáculo:</strong> ${reg.igreja}</div>
-                    <div>
-                        <button type="button" class="btn-salvar" onclick="window.salvarEdicao(${index})">Salvar</button>
-                        <button type="button" class="btn-cancelar" onclick="window.cancelarEdicao()">Cancelar</button>
-                    </div>
-                </div>
-                <div class="edit-grid">${inputsHTML}</div>
-            </div>`;
-        } else {
-            const itens = Object.entries(reg.livros)
-                .filter(([_, qtd]) => qtd > 0)
-                .map(([chave, qtd]) => `<strong>${nomesLivros[chave]}:</strong> ${qtd}`).join(', ');
-
-            lista.innerHTML += `
-            <div class="registro-item">
-                <div class="registro-header">
-                    <div><strong>Região:</strong> ${reg.regiao} | <strong>Cenáculo:</strong> ${reg.igreja}</div>
-                    <button type="button" class="btn-editar" onclick="window.ativarEdicao(${index})">Editar</button>
-                </div>
-                <div style="font-size: 0.95em;">${itens || 'Nenhum livro designado.'}</div>
-            </div>`;
-        }
-    });
-
-    if (!encontrouAlgum) {
-        lista.innerHTML = '<p>Nenhum cenáculo encontrado na busca.</p>';
-    }
-}
-
-window.ativarEdicao = (index) => {
-    editandoIndex = index;
-    renderizarPainel();
-};
-
-window.cancelarEdicao = () => {
-    editandoIndex = -1;
-    renderizarPainel();
-};
-
-window.salvarEdicao = async (index) => {
-    const reg = registrosDesignados[index];
-    const novosValores = {};
-    let erroMatematico = false;
-
-    for (const chave in reg.livros) {
-        const limiteMaximo = saldosAtuais[chave] + reg.livros[chave];
-        if (limiteMaximo > 0) {
-            const inputElem = document.getElementById(`edit-${chave}`);
-            let novoQtd = parseInt(inputElem.value) || 0;
-            if (novoQtd < 0) novoQtd = 0;
-            
-            if (novoQtd > limiteMaximo) {
-                alert(`Erro: A quantidade ultrapassa o limite de ${limiteMaximo}.`);
-                erroMatematico = true;
-                break;
-            }
-            novosValores[chave] = novoQtd;
-        } else {
-            novosValores[chave] = 0;
-        }
-    }
-
-    if (erroMatematico) return;
-
-    try {
-        const docId = reg.docId || `${blocoAtivo}_${reg.regiao}_${reg.igreja}`.replace(/[\s\/]+/g, '_');
-        await updateDoc(doc(db, "distribuicoes", docId), {
-            livros: novosValores,
-            timestamp: serverTimestamp()
-        });
-
-        for (const chave in novosValores) {
-            const delta = novosValores[chave] - reg.livros[chave];
-            saldosAtuais[chave] -= delta; 
-            reg.livros[chave] = novosValores[chave];
-        }
-
-        editandoIndex = -1;
-        renderizarPainel();
-        aplicarTravasIniciais(); 
-    } catch (error) {
-        console.error("Erro ao atualizar: ", error);
-        alert("Falha na comunicação com o servidor ao editar.");
-    }
-};
-
-btnFechar.onclick = () => modal.style.display = 'none';
-window.onclick = (e) => { if (e.target == modal) modal.style.display = 'none'; }
