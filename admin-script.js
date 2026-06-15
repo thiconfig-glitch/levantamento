@@ -202,7 +202,7 @@ function renderizarProgresso() {
                     <div style="background-color: #e9ecef; border-radius: 4px; width: 100%; height: 12px; margin-bottom: 5px; overflow: hidden;">
                         <div style="background-color: ${corStatus}; width: ${pb.porcentagem}%; height: 100%; border-radius: 4px;"></div>
                     </div>
-                    <span style="font-size: 0.85em; font-weight: bold; color: ${corStatus};">${pb.porcentagem}%</span>
+                    <span style="font-size: 0.85em; font-weight: bold; color: ${corStatus};">${pb.porcentagem}% Concluído</span>
                 </td>
             </tr>
         `;
@@ -210,7 +210,22 @@ function renderizarProgresso() {
 
     const boxPendentes = document.getElementById('box-pendentes');
     const blocosEnviados = progressoBlocos.filter(pb => pb.porcentagem === 100).length;
+    const blocosPendentesNomes = progressoBlocos.filter(pb => pb.porcentagem === 0).map(pb => pb.bloco);
     const taxaGlobal = Math.round((blocosEnviados / todosOsBlocos.length) * 100);
-    boxPendentes.querySelector('strong').textContent = `Blocos Pendentes (${taxaGlobal}% Global):`;
+    
+    boxPendentes.querySelector('strong').textContent = `Status Global (${taxaGlobal}% Concluído):`;
+    const spanPendentes = document.getElementById('lista-pendentes');
+    
+    if (blocosPendentesNomes.length === 0) {
+        spanPendentes.textContent = "Todos os blocos enviaram a redução!";
+        boxPendentes.style.backgroundColor = "#d4edda";
+        boxPendentes.style.borderColor = "#c3e6cb";
+        boxPendentes.style.color = "#155724";
+    } else {
+        spanPendentes.textContent = "Pendentes: " + blocosPendentesNomes.join(' | ');
+        boxPendentes.style.backgroundColor = "#fff3cd";
+        boxPendentes.style.borderColor = "#ffc107";
+        boxPendentes.style.color = "#856404";
+    }
 }
 
