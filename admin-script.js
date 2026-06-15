@@ -195,7 +195,6 @@ onSnapshot(q, (snapshot) => {
     registrosGlobais = [];
     snapshot.forEach((docSnap) => {
         const data = docSnap.data();
-        // Removi o filtro de reset para que você possa ver e apagar os registros antigos
         registrosGlobais.push({
             id: docSnap.id,
             timestamp: data.timestamp ? data.timestamp.toDate() : new Date(),
@@ -203,7 +202,8 @@ onSnapshot(q, (snapshot) => {
             regiao: data.regiao,
             igreja: data.igreja,
             reducaoLanchinhos: data.reducaoLanchinhos || 0,
-            isOld: data.reducaoLanchinhos === undefined // Marcador para sabermos se é lixo
+            aumentoLanchinhos: data.aumentoLanchinhos || 0,
+            isOld: data.reducaoLanchinhos === undefined && data.aumentoLanchinhos === undefined
         });
     });
     
@@ -214,7 +214,7 @@ onSnapshot(q, (snapshot) => {
     renderizarProgresso();
 }, (error) => {
     console.error("Erro ao ler o banco:", error);
-    corpoTabela.innerHTML = '<tr><td colspan="6" style="text-align:center; color:red;">Erro de permissão no Firebase ou aguardando conexão...</td></tr>';
+    corpoTabela.innerHTML = '<tr><td colspan="7" style="text-align:center; color:red;">Erro de permissão no Firebase ou aguardando conexão...</td></tr>';
 });
 
 // Lógica para limpar tudo
@@ -302,14 +302,15 @@ function atualizarFiltros() {
 function renderizarTabela(dados) {
     corpoTabela.innerHTML = '';
     if (dados.length === 0) {
-        corpoTabela.innerHTML = '<tr><td colspan="6" style="text-align:center;">Nenhum registo encontrado no banco.</td></tr>';
+        corpoTabela.innerHTML = '<tr><td colspan="7" style="text-align:center;">Nenhum registo encontrado no banco.</td></tr>';
         return;
     }
 
     dados.forEach(reg => {
         const dataFormatada = reg.timestamp.toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
         const estiloLinha = reg.isOld ? 'style="background-color: #ffeef0; opacity: 0.7;"' : '';
-        const textoReducao = reg.isOld ? '<span style="color:#999;">Dado Antigo</span>' : reg.reducaoLanchinhos;
+        const textoReducao = reg.isOld ? '<span style="color:#999;">-</span>' : reg.reducaoLanchinhos;
+        const textoAumento = reg.isOld ? '<span style="color:#999;">-</span>' : reg.aumentoLanchinhos;
 
         corpoTabela.innerHTML += `
             <tr ${estiloLinha}>
@@ -318,6 +319,7 @@ function renderizarTabela(dados) {
                 <td>${reg.regiao}</td>
                 <td>${reg.igreja}</td>
                 <td style="font-weight: bold; color: #dc3545;">${textoReducao}</td>
+                <td style="font-weight: bold; color: #28a745;">${textoAumento}</td>
                 <td>
                     <button onclick="excluirRegistro('${reg.id}')" style="background-color: #dc3545; padding: 5px 10px; font-size: 0.8em; text-transform: none; width: auto;">Excluir</button>
                 </td>
@@ -364,15 +366,58 @@ document.getElementById('btn-exportar').addEventListener('click', () => {
         return;
     }
 
-    dadosParaExportar.sort((a, b) => a.bloco.localeCompare(b.bloco));
+    // Ordenar por Bloco e depois por Região
+    dadosParaExportar.sort((a, b) => {
+        if (a.bloco !== b.bloco) return a.bloco.localeCompare(b.bloco);
+        return a.regiao.localeCompare(b.regiao);
+    });
 
-    let csvContent = `RELATORIO DE REDUCAO DE LANCHINHOS\n`;
-    csvContent += `Data;Bloco;Regiao;Cenaculo;Reducao\n`;
+    let csvContent = `RELATORIO DE AJUSTE DE LANCHINHOS - CONFERENCIA FINAL\n`;
+    csvContent += `Data;Bloco;Regiao;Cenaculo;Reducao(-);Aumento(+);Saldo Liquido\n`;
+
+    let blocoAtual = "";
+    let totalRedBloco = 0;
+    let totalAumBloco = 0;
 
     dadosParaExportar.forEach(reg => {
+        if (blocoSelecionado === "TODOS" && reg.bloco !== blocoAtual) {
+            if (blocoAtual !== "") {
+                csvContent += `SUBTOTAL ${blocoAtual};;;;${totalRedBloco};${totalAumBloco};${totalAumBloco - totalRedBloco}\n\n`;
+            }
+            blocoAtual = reg.bloco;
+            totalRedBloco = 0;
+            totalAumBloco = 0;
+        }
+
         const dataFormatada = reg.timestamp.toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }).replace(',', '');
-        csvContent += `${dataFormatada};${reg.bloco};${reg.regiao};${reg.igreja};${reg.reducaoLanchinhos}\n`;
+        const saldoLiquido = reg.aumentoLanchinhos - reg.reducaoLanchinhos;
+        
+        csvContent += `${dataFormatada};${reg.bloco};${reg.regiao};${reg.igreja};${reg.reducaoLanchinhos};${reg.aumentoLanchinhos};${saldoLiquido}\n`;
+        
+        totalRedBloco += reg.reducaoLanchinhos;
+        totalAumBloco += reg.aumentoLanchinhos;
     });
+
+    if (blocoSelecionado === "TODOS" && blocoAtual !== "") {
+        csvContent += `SUBTOTAL ${blocoAtual};;;;${totalRedBloco};${totalAumBloco};${totalAumBloco - totalRedBloco}\n`;
+    } else if (blocoSelecionado !== "TODOS") {
+        csvContent += `\nTOTAL DO BLOCO;;;;${totalRedBloco};${totalAumBloco};${totalAumBloco - totalRedBloco}\n`;
+    }
+
+    const bom = "\uFEFF";
+    const blob = new Blob([bom + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    
+    const a = document.createElement('a');
+    a.href = url;
+    const dataIso = new Date().toISOString().slice(0,10);
+    const prefixo = blocoSelecionado === "TODOS" ? "geral" : blocoSelecionado.toLowerCase().replace(/ /g, '_');
+    a.download = `conferencia_final_${prefixo}_${dataIso}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+});
 
     const bom = "\uFEFF";
     const blob = new Blob([bom + csvContent], { type: 'text/csv;charset=utf-8;' });

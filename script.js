@@ -275,6 +275,7 @@ document.getElementById('form-levantamento').addEventListener('submit', async (e
     e.preventDefault();
     const btnSubmit = document.querySelector('button[type="submit"]');
     const valorReducao = parseInt(document.getElementById('reducao-lanchinhos').value) || 0;
+    const valorAumento = parseInt(document.getElementById('aumento-lanchinhos').value) || 0;
 
     const jaExiste = registrosDesignados.some(r => r.igreja === seletorIgreja.value && r.regiao === seletorRegiao.value);
     if (jaExiste) {
@@ -292,6 +293,7 @@ document.getElementById('form-levantamento').addEventListener('submit', async (e
             regiao: seletorRegiao.value,
             igreja: seletorIgreja.value,
             reducaoLanchinhos: valorReducao,
+            aumentoLanchinhos: valorAumento,
             timestamp: serverTimestamp()
         });
 
@@ -304,7 +306,7 @@ document.getElementById('form-levantamento').addEventListener('submit', async (e
         seletorIgreja.innerHTML = '<option value="">Selecione primeiro a região...</option>';
         seletorIgreja.disabled = true;
         document.getElementById('form-levantamento').reset();
-        alert("Levantamento de redução enviado com sucesso!");
+        alert("Levantamento de ajuste enviado com sucesso!");
     } catch (error) {
         console.error("Erro ao gravar: ", error);
         alert("Falha na comunicação com o servidor.");
