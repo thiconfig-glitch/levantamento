@@ -21,7 +21,7 @@
         <h2>Levantamento de Materiais</h2>
         
         <div class="info-box">
-            <strong>Instrução Operacional:</strong> Informe as alterações desejadas (redução ou acréscimo) para o pedido de lanchinhos da sua igreja.
+            <strong>Instrução Operacional:</strong> Informe a redução desejada para o pedido de lanchinhos da sua igreja.
         </div>
 
         <hr>
@@ -44,17 +44,11 @@
             <fieldset>
                 <legend>Ajuste de Lanchinhos</legend>
                 <div class="info-box" style="background-color: #fff3cd; border-left-color: #ffc107; color: #856404;">
-                    <strong>Instrução:</strong> Informe abaixo se deseja reduzir ou aumentar a quantidade de lanchinhos. Se não houver alteração, deixe como 0.
+                    <strong>Instrução:</strong> Informe abaixo a quantidade de lanchinhos a reduzir. Se não houver alteração, deixe como 0.
                 </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                    <div class="input-group">
-                        <label for="reducao-lanchinhos">Qtd. a REDUZIR:</label>
-                        <input type="number" id="reducao-lanchinhos" min="0" value="0" required>
-                    </div>
-                    <div class="input-group">
-                        <label for="aumento-lanchinhos">Qtd. a ACRESCENTAR:</label>
-                        <input type="number" id="aumento-lanchinhos" min="0" value="0" required>
-                    </div>
+                <div class="input-group">
+                    <label for="reducao-lanchinhos">Qtd. a REDUZIR:</label>
+                    <input type="number" id="reducao-lanchinhos" min="0" value="0" required>
                 </div>
             </fieldset>
 

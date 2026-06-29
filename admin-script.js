@@ -419,20 +419,6 @@ document.getElementById('btn-exportar').addEventListener('click', () => {
     URL.revokeObjectURL(url);
 });
 
-    const bom = "\uFEFF";
-    const blob = new Blob([bom + csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    
-    const a = document.createElement('a');
-    a.href = url;
-    const dataIso = new Date().toISOString().slice(0,10);
-    a.download = `relatorio_${blocoSelecionado.toLowerCase().replace(/ /g, '_')}_${dataIso}.csv`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-});
-
 function renderizarProgresso() {
     const container = document.getElementById('corpo-tabela-progresso');
     container.innerHTML = '';

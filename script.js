@@ -275,7 +275,7 @@ document.getElementById('form-levantamento').addEventListener('submit', async (e
     e.preventDefault();
     const btnSubmit = document.querySelector('button[type="submit"]');
     const valorReducao = parseInt(document.getElementById('reducao-lanchinhos').value) || 0;
-    const valorAumento = parseInt(document.getElementById('aumento-lanchinhos').value) || 0;
+    const valorAumento = 0;
 
     const jaExiste = registrosDesignados.some(r => r.igreja === seletorIgreja.value && r.regiao === seletorRegiao.value);
     if (jaExiste) {
